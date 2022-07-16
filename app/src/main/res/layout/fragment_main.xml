@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainFragment">
+
+    <ImageView
+        android:id="@+id/song_image"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:cropToPadding="true"
+        android:padding="50dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/song_image"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/button_play_pause"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_margin="50dp"
+        android:src="@drawable/ic_baseline_play_arrow_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/song_progress"/>
+
+
+    <TextView
+        android:id="@+id/song_position"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/song_image" />
+
+    <TextView
+        android:id="@+id/song_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/song_image" />
+
+    <SeekBar
+        android:id="@+id/song_progress"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:thumbTint="@color/black"
+        android:progressTint="@color/black"
+        app:layout_constraintEnd_toStartOf="@id/song_duration"
+        app:layout_constraintStart_toEndOf="@id/song_position"
+        app:layout_constraintTop_toBottomOf="@id/song_image" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
