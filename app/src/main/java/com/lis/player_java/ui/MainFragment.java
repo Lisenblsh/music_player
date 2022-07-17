@@ -12,11 +12,14 @@ import android.widget.SeekBar;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.lis.player_java.ImageFun;
 import com.lis.player_java.R;
 import com.lis.player_java.databinding.FragmentMainBinding;
+import com.lis.player_java.di.Injection;
 import com.lis.player_java.player.Music;
+import com.lis.player_java.viewModel.PlaybackViewModel;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
@@ -29,6 +32,8 @@ public class MainFragment extends Fragment {
     private final Handler myHandler = new Handler();
     private Music mPlayer;
 
+    private PlaybackViewModel viewModel;
+
     private double startTime = 0;
 
 
@@ -36,7 +41,12 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mPlayer = new Music(requireContext());
-        binding = FragmentMainBinding.inflate(inflater, container, false);
+        if(binding == null){
+            binding = FragmentMainBinding.inflate(inflater, container, false);
+            viewModel = new ViewModelProvider(
+                    this, Injection.INSTANCE.provideViewModelFactory()
+            ).get(PlaybackViewModel.class);
+        }
         bindElement();
         return binding.getRoot();
     }
@@ -45,11 +55,20 @@ public class MainFragment extends Fragment {
         long songDuration = (long) mPlayer.getDuration();
         binding.songProgress.setMax((int) songDuration);
 
+
+        Log.e("instance", MessageFormat.format("{0}", viewModel.hashCode()));
+
+
         binding.songDuration.setText(getStringSongDuration(songDuration));
         binding.songPosition.setText(getStringSongDuration((long) startTime));
         binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener());
 
         binding.buttonPlayPause.setOnClickListener(this::startClickListener);
+
+        binding.buttonNext.setOnClickListener(v -> {
+        });
+        binding.buttonPrevious.setOnClickListener(v -> {
+        });
     }
 
     private final Runnable UpdateSongTime = new Runnable() {

@@ -6,12 +6,13 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainFragment">
 
+
     <ImageView
         android:id="@+id/song_image"
+        style="@style/Widget.Material3.CardView.Elevated"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:cropToPadding="true"
-        android:padding="50dp"
+        android:layout_margin="50dp"
         android:scaleType="centerCrop"
         android:src="@drawable/song_image"
         app:layout_constraintDimensionRatio="1:1"
@@ -19,24 +20,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/button_play_pause"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_margin="50dp"
-        android:src="@drawable/ic_baseline_play_arrow_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/song_progress"/>
-
-
     <TextView
         android:id="@+id/song_position"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/song_image" />
+        app:layout_constraintTop_toTopOf="@id/song_progress" />
 
     <TextView
         android:id="@+id/song_duration"
@@ -44,18 +34,53 @@
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/song_image" />
+        app:layout_constraintTop_toTopOf="@id/song_progress" />
 
     <SeekBar
         android:id="@+id/song_progress"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:thumbTint="@color/black"
+        android:layout_marginHorizontal="5dp"
+        android:layout_marginTop="55dp"
+        android:layout_marginBottom="5dp"
         android:progressTint="@color/black"
+        android:thumbTint="@color/black"
         app:layout_constraintEnd_toStartOf="@id/song_duration"
         app:layout_constraintStart_toEndOf="@id/song_position"
         app:layout_constraintTop_toBottomOf="@id/song_image" />
+
+
+    <ImageView
+        android:id="@+id/button_play_pause"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:src="@drawable/ic_baseline_play_arrow_24" />
+
+    <ImageView
+        android:id="@+id/button_previous"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="5dp"
+        android:src="@drawable/ic_baseline_skip_previous_24" />
+
+    <ImageView
+        android:id="@+id/button_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:padding="5dp"
+        android:src="@drawable/ic_baseline_skip_next_24" />
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="50dp"
+        app:constraint_referenced_ids="button_previous,button_play_pause,button_next"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/song_progress" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

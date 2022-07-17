@@ -10,6 +10,7 @@ public class Music {
     private final Context mContext;
 
     private MediaPlayer mPlayer;
+    private MediaPlayer nextPlayer;
 
     public Music (Context context){
             mUri = R.raw.music;
@@ -19,7 +20,8 @@ public class Music {
 
     public void create(){
         mPlayer = MediaPlayer.create(mContext, mUri);
-        mPlayer.setOnCompletionListener(mp -> mPlayer.stop());
+        nextPlayer = MediaPlayer.create(mContext, R.raw.music2);
+        nextPlayer.setOnCompletionListener(MediaPlayer::stop);
     }
 
     public void start(){
