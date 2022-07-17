@@ -6,36 +6,42 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainFragment">
 
-    <ImageView
-        android:id="@+id/song_image"
-        style="@style/Widget.Material3.CardView.Elevated"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_song_image"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="50dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/song_image"
+        app:cardElevation="50dp"
         app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/song_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/song_image" />
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/song_position"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/song_progress"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/song_progress"
-        app:layout_constraintBottom_toBottomOf="@id/song_progress"/>
+        app:layout_constraintTop_toTopOf="@id/song_progress" />
 
     <TextView
         android:id="@+id/song_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
+        app:layout_constraintBottom_toBottomOf="@id/song_progress"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@id/song_progress"
-        app:layout_constraintBottom_toBottomOf="@id/song_progress"/>
+        app:layout_constraintTop_toTopOf="@id/song_progress" />
 
     <SeekBar
         android:id="@+id/song_progress"
@@ -48,7 +54,7 @@
         android:thumbTint="@color/black"
         app:layout_constraintEnd_toStartOf="@id/song_duration"
         app:layout_constraintStart_toEndOf="@id/song_position"
-        app:layout_constraintTop_toBottomOf="@id/song_image" />
+        app:layout_constraintTop_toBottomOf="@id/card_song_image" />
 
 
     <ImageView

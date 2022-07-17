@@ -4,10 +4,13 @@ import android.app.Application;
 import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import java.text.MessageFormat;
 
 public class PlaybackViewModel extends ViewModel {
     private final Application application;
@@ -40,9 +43,9 @@ public class PlaybackViewModel extends ViewModel {
     public void setupMediaPlayer(int song) {
         mediaPlayer = MediaPlayer.create(application.getApplicationContext(), song);
         mediaPlayer.setOnCompletionListener(MediaPlayer::stop);
-        position.postValue((double) mediaPlayer.getCurrentPosition());
-        duration.postValue((double) mediaPlayer.getDuration());
-        isPlaying.postValue(mediaPlayer.isPlaying());
+        position.setValue((double) mediaPlayer.getCurrentPosition());
+        duration.setValue((double) mediaPlayer.getDuration());
+        isPlaying.setValue(mediaPlayer.isPlaying());
     }
 
     public void start() {
