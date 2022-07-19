@@ -22,8 +22,6 @@ public class MainFragment extends Fragment {
 
     private FragmentMainBinding binding;
 
-    private String tokenKey = "TOKEN_KEY";
-
     @Override
     public void onStart() {
         super.onStart();

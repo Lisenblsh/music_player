@@ -1,21 +1,23 @@
 package com.lis.player_java.viewModel;
 
 import android.app.Application;
-import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.text.MessageFormat;
+import com.lis.player_java.repository.MusicRepository;
 
 public class PlaybackViewModel extends ViewModel {
     private final Application application;
+    private final MusicRepository repository;
     private MediaPlayer mediaPlayer;
+    private MediaPlayer nextPlayer;
     private final Handler myHandler = new Handler();
+
+    private int currentSong = 0;
 
     private final MutableLiveData<Double> position = new MutableLiveData<>();
 
@@ -32,17 +34,41 @@ public class PlaybackViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> isPlaying = new MutableLiveData<>();
 
-    public LiveData<Boolean> getIsPlaying() {
+    public LiveData<Boolean> isPlaying() {
         return isPlaying;
     }
 
-    PlaybackViewModel(Application application) {
+    private final MutableLiveData<Boolean> isLooping = new MutableLiveData<>();
+
+    public LiveData<Boolean> isLooping() {
+        return isLooping;
+    }
+
+    public void setLooping(Boolean _isLooping) {
+        isLooping.setValue(_isLooping);
+        mediaPlayer.setLooping(_isLooping);
+    }
+
+    PlaybackViewModel(Application application,
+                      MusicRepository repository) {
         this.application = application;
+        this.repository = repository;
     }
 
     public void setupMediaPlayer(int song) {
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+        }
+
         mediaPlayer = MediaPlayer.create(application.getApplicationContext(), song);
-        mediaPlayer.setOnCompletionListener(MediaPlayer::stop);
+        //mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
+        mediaPlayer.setOnCompletionListener(mp -> {
+            boolean isLastSong = nextSong();
+            if(isLastSong) {
+                mp.stop();
+            }
+
+        });
         position.setValue((double) mediaPlayer.getCurrentPosition());
         duration.setValue((double) mediaPlayer.getDuration());
         isPlaying.setValue(mediaPlayer.isPlaying());
@@ -61,10 +87,34 @@ public class PlaybackViewModel extends ViewModel {
 
     }
 
-    public void seekTo(int progress){
+    public void seekTo(int progress) {
         mediaPlayer.seekTo(progress);
         position.postValue((double) mediaPlayer.getCurrentPosition());
 
+    }
+
+    public boolean nextSong() {
+        if (currentSong != 2) {
+            currentSong++;
+            int i = repository.getMusicList()[currentSong];
+            setupMediaPlayer(i);
+            start();
+            return true;
+        }
+        return false;
+    }
+
+    public void prevSong() {
+        if (mediaPlayer.getCurrentPosition() > 2000) {
+            seekTo(0);
+        } else {
+            if (currentSong != 0) {
+                currentSong--;
+                int i = repository.getMusicList()[currentSong];
+                setupMediaPlayer(i);
+                start();
+            }
+        }
     }
 
     private final Runnable UpdateSongTime = new Runnable() {
@@ -74,4 +124,3 @@ public class PlaybackViewModel extends ViewModel {
         }
     };
 }
-

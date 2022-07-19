@@ -7,6 +7,8 @@ import androidx.lifecycle.AbstractSavedStateViewModelFactory;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
+import com.lis.player_java.repository.MusicRepository;
+
 public final class PlaybackViewModelFactory extends AbstractSavedStateViewModelFactory {
     Application application;
     public PlaybackViewModelFactory(Application application) {
@@ -19,7 +21,7 @@ public final class PlaybackViewModelFactory extends AbstractSavedStateViewModelF
                                              @NonNull Class<T> modelClass,
                                              @NonNull SavedStateHandle handle) {
         if (modelClass.isAssignableFrom(PlaybackViewModel.class)) {
-            return (T) new PlaybackViewModel(application);
+            return (T) new PlaybackViewModel(application, new MusicRepository());
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

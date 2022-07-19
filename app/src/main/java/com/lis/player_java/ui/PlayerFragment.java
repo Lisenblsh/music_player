@@ -2,6 +2,7 @@ package com.lis.player_java.ui;
 
 import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,39 +46,64 @@ public class PlayerFragment extends Fragment {
 
 
     private void bindElement() {
-        long songDuration = Objects.requireNonNull(viewModel
-                .getDuration()
-                .getValue()).longValue();
-
-        binding.songProgress.setMax((int) songDuration);
+        onStartNewSound();
 
         viewModel.getPosition().observe(getViewLifecycleOwner(), position -> {
             binding.songPosition.setText(getStringSongDuration(position.longValue()));
             binding.songProgress.setProgress(position.intValue());
         });
 
+        viewModel.isPlaying().observe(getViewLifecycleOwner(), isPlaying -> {
+            new ImageFun().setImage(binding.buttonPlayPause,
+                    isPlaying ? R.drawable.ic_baseline_pause_24
+                            : R.drawable.ic_baseline_play_arrow_24);
 
-        binding.songDuration.setText(getStringSongDuration(songDuration));
+        });
+
         binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener());
 
-        binding.buttonPlayPause.setOnClickListener(this::startClickListener);
+        binding.buttonPlayPause.setOnClickListener(v -> startClickListener());
 
-        binding.buttonNext.setOnClickListener(v -> {
+            binding.buttonNext.setOnClickListener(v -> nextClickListener());
+            binding.buttonPrevious.setOnClickListener(v -> prevClickListener());
+
+            binding.buttonLoop.setOnClickListener(this::loopClickListener);
+    }
+
+    private Boolean isLooping = false;
+
+    private void loopClickListener(View v) {
+        isLooping = !isLooping;
+        v.setAlpha(isLooping ? 1 : 0.5f);
+        viewModel.setLooping(isLooping);
+        Log.e("asda", ""+viewModel.isLooping().getValue());
+    }
+
+    private void onStartNewSound() {
+
+        viewModel.getDuration().observe(getViewLifecycleOwner(), songDuration -> {
+            binding.songProgress.setMax(songDuration.intValue());
+            binding.songDuration.setText(getStringSongDuration(songDuration.longValue()));
         });
-        binding.buttonPrevious.setOnClickListener(v -> {
-        });
+
     }
 
 
-    private void startClickListener(View v) {
-        boolean isPlaying = Boolean.TRUE.equals(viewModel.getIsPlaying().getValue());
+    private void startClickListener() {
+        boolean isPlaying = Boolean.TRUE.equals(viewModel.isPlaying().getValue());
         if (isPlaying) {
             viewModel.pause();
-            new ImageFun().setImage(binding.buttonPlayPause, R.drawable.ic_baseline_play_arrow_24);
-        } else {
+       } else {
             viewModel.start();
-            new ImageFun().setImage(binding.buttonPlayPause, R.drawable.ic_baseline_pause_24);
         }
+    }
+
+    private void nextClickListener() {
+        viewModel.nextSong();
+    }
+
+    private void prevClickListener() {
+        viewModel.prevSong();
     }
 
     private SeekBar.OnSeekBarChangeListener seekBarSelectProgressListener() {
