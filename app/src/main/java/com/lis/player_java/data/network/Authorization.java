@@ -1,4 +1,4 @@
-package com.lis.player_java.network;
+package com.lis.player_java.data.network;
 
 import java.util.HashMap;
 import java.util.Map;

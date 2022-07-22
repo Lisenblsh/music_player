@@ -57,4 +57,9 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$ret_version"
     implementation "com.squareup.retrofit2:converter-gson:$ret_version"
     implementation "com.squareup.okhttp3:okhttp:4.9.3"
+
+    // jackson-annotations
+    def jackson_ver = "2.13.3"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jackson_ver"
+
 }

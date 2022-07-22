@@ -1,6 +1,5 @@
 package com.lis.player_java.ui;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,8 +14,6 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.lis.player_java.R;
 import com.lis.player_java.databinding.FragmentMainBinding;
-
-import java.util.Objects;
 
 public class MainFragment extends Fragment {
 

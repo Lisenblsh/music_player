@@ -14,8 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.lis.player_java.R;
+import com.lis.player_java.data.network.Authorization;
 import com.lis.player_java.databinding.FragmentAuthorizationBinding;
-import com.lis.player_java.network.Authorization;
 
 import java.util.Map;
 

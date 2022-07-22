@@ -8,7 +8,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.lis.player_java.repository.MusicRepository;
+import com.lis.player_java.data.repository.MusicRepository;
+import com.lis.player_java.tool.LoopingState;
 
 public class PlaybackViewModel extends ViewModel {
     private final Application application;
@@ -38,15 +39,15 @@ public class PlaybackViewModel extends ViewModel {
         return isPlaying;
     }
 
-    private final MutableLiveData<Boolean> isLooping = new MutableLiveData<>();
+    private final MutableLiveData<LoopingState> loopingState = new MutableLiveData<>();
 
-    public LiveData<Boolean> isLooping() {
-        return isLooping;
+    public LiveData<LoopingState> getLoopingState() {
+        return loopingState;
     }
 
-    public void setLooping(Boolean _isLooping) {
-        isLooping.setValue(_isLooping);
-        mediaPlayer.setLooping(_isLooping);
+    public void setLoopingState(LoopingState loopingState) {
+        this.loopingState.setValue(loopingState);
+        mediaPlayer.setLooping(loopingState == LoopingState.SingleLoop);
     }
 
     PlaybackViewModel(Application application,
@@ -61,10 +62,9 @@ public class PlaybackViewModel extends ViewModel {
         }
 
         mediaPlayer = MediaPlayer.create(application.getApplicationContext(), song);
-        //mediaPlayer.setOnPreparedListener(mp -> mediaPlayer.start());
         mediaPlayer.setOnCompletionListener(mp -> {
             boolean isLastSong = nextSong();
-            if(isLastSong) {
+            if (isLastSong) {
                 mp.stop();
             }
 
@@ -72,6 +72,8 @@ public class PlaybackViewModel extends ViewModel {
         position.setValue((double) mediaPlayer.getCurrentPosition());
         duration.setValue((double) mediaPlayer.getDuration());
         isPlaying.setValue(mediaPlayer.isPlaying());
+        loopingState.setValue(LoopingState.NotLoop);
+        //mediaPlayer.prepareAsync();
     }
 
     public void start() {

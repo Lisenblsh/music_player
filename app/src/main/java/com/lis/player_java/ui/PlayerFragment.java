@@ -1,8 +1,9 @@
 package com.lis.player_java.ui;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +18,12 @@ import com.lis.player_java.ImageFun;
 import com.lis.player_java.R;
 import com.lis.player_java.databinding.FragmentPlayerBinding;
 import com.lis.player_java.di.Injection;
+import com.lis.player_java.tool.LoopingState;
 import com.lis.player_java.viewModel.PlaybackViewModel;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerFragment extends Fragment {
@@ -33,9 +34,9 @@ public class PlayerFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentPlayerBinding.inflate(inflater,container,false);
+        binding = FragmentPlayerBinding.inflate(inflater, container, false);
         viewModel = new ViewModelProvider(
-                this, Injection.INSTANCE.provideViewModelFactory(requireActivity().getApplication())
+                this, getFactory()
         ).get(PlaybackViewModel.class);
 
         viewModel.setupMediaPlayer(R.raw.music);
@@ -60,23 +61,45 @@ public class PlayerFragment extends Fragment {
 
         });
 
+        viewModel.getLoopingState().observe(getViewLifecycleOwner(), loopingState -> {
+            switch (loopingState) {
+                case NotLoop:
+                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_plus_one_24);
+                    break;
+                case SingleLoop:
+                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_loop_24);
+                    break;
+                case PlaylistLoop:
+                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_low_priority_24);
+                    break;
+            }
+        });
+
         binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener());
 
         binding.buttonPlayPause.setOnClickListener(v -> startClickListener());
 
-            binding.buttonNext.setOnClickListener(v -> nextClickListener());
-            binding.buttonPrevious.setOnClickListener(v -> prevClickListener());
+        binding.buttonNext.setOnClickListener(v -> nextClickListener());
+        binding.buttonPrevious.setOnClickListener(v -> prevClickListener());
 
-            binding.buttonLoop.setOnClickListener(this::loopClickListener);
+        binding.buttonLoop.setOnClickListener(this::loopClickListener);
     }
 
-    private Boolean isLooping = false;
+    private LoopingState loopingState = LoopingState.NotLoop;
 
     private void loopClickListener(View v) {
-        isLooping = !isLooping;
-        v.setAlpha(isLooping ? 1 : 0.5f);
-        viewModel.setLooping(isLooping);
-        Log.e("asda", ""+viewModel.isLooping().getValue());
+        switch (loopingState) {
+            case NotLoop:
+                loopingState = LoopingState.SingleLoop;
+                break;
+            case SingleLoop:
+                loopingState = LoopingState.PlaylistLoop;
+                break;
+            case PlaylistLoop:
+                loopingState = LoopingState.NotLoop;
+                break;
+        }
+        viewModel.setLoopingState(loopingState);
     }
 
     private void onStartNewSound() {
@@ -88,12 +111,11 @@ public class PlayerFragment extends Fragment {
 
     }
 
-
     private void startClickListener() {
         boolean isPlaying = Boolean.TRUE.equals(viewModel.isPlaying().getValue());
         if (isPlaying) {
             viewModel.pause();
-       } else {
+        } else {
             viewModel.start();
         }
     }
@@ -153,5 +175,15 @@ public class PlayerFragment extends Fragment {
         }
 
         return stringSongDuration;
+    }
+
+    private SharedPreferences getPreference() {
+        return requireActivity().getSharedPreferences(getString(R.string.authorization_info), Context.MODE_PRIVATE);
+    }
+
+    private ViewModelProvider.Factory getFactory() {
+        String userAgent = getPreference().getString(getResources().getString(R.string.user_agent), "");
+        //Добавть проерку userAgent ибо малоли что может произойти перебздеть стоит.
+        return Injection.INSTANCE.provideViewModelFactory(requireActivity().getApplication(), userAgent);
     }
 }
