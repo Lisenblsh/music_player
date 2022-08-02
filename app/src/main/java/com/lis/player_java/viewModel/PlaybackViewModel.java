@@ -92,6 +92,9 @@ public class PlaybackViewModel extends ViewModel {
                 position.setValue((double) mediaPlayer.getCurrentPosition());
                 duration.setValue((double) mediaPlayer.getDuration());
             });
+            mediaPlayer.setOnCompletionListener(mediaPlayer-> {
+                nextSong();
+            });
         } catch (IOException e) {
             e.printStackTrace();
 
