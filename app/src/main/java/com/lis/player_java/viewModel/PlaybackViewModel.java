@@ -4,6 +4,7 @@ import android.app.Application;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -24,7 +25,7 @@ import retrofit2.Response;
 public class PlaybackViewModel extends ViewModel {
     private final Application application;
     private final MusicRepository repository;
-    private MediaPlayer mediaPlayer= new MediaPlayer();
+    private final MediaPlayer mediaPlayer = new MediaPlayer();
     private final Handler myHandler = new Handler();
 
     private int currentSong = 0;
@@ -81,32 +82,19 @@ public class PlaybackViewModel extends ViewModel {
         getMusicList();
     }
 
-    private void setupMediaPlayer(Uri song) {
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-        }
-
+    private void setupMediaPlayer(String song) {
+        mediaPlayer.reset();
         try {
-            mediaPlayer.setDataSource(application.getApplicationContext(),song);
+            mediaPlayer.setDataSource(song);
             mediaPlayer.prepareAsync();
-        } catch (IllegalArgumentException e) {
-            //"AudioTrackUrl seems to be incorrectly formatted"
-        } catch (IllegalStateException e) {
-            //"MediaPlayer is in an illegal state"
+            mediaPlayer.setOnPreparedListener(mediaPlayer -> {
+                start();
+                position.setValue((double) mediaPlayer.getCurrentPosition());
+                duration.setValue((double) mediaPlayer.getDuration());
+            });
         } catch (IOException e) {
-            //"MediaPlayer failed due to exception"
+            e.printStackTrace();
         }
-        mediaPlayer.setOnCompletionListener(mp -> {
-            /*boolean isLastSong = nextSong();
-            if (isLastSong) {
-                mp.stop();
-            }*/
-
-        });
-        position.setValue((double) mediaPlayer.getCurrentPosition());
-        duration.setValue((double) mediaPlayer.getDuration());
-        isPlaying.setValue(mediaPlayer.isPlaying());
-        loopingState.setValue(LoopingState.NotLoop);
     }
 
     private void getMusicList() {
@@ -116,7 +104,7 @@ public class PlaybackViewModel extends ViewModel {
                 if (response.isSuccessful() && response.body().getResponse() != null) {
                     setMusicList(response.body());
                     String song = response.body().getResponse().getItems()[0].getURL();
-                    setupMediaPlayer(Uri.parse(song));
+                    setupMediaPlayer(song);
                 }
                 //добавить обработчик ошибок
             }
@@ -129,6 +117,7 @@ public class PlaybackViewModel extends ViewModel {
     }
 
     public void start() {
+        Log.e("Stat", "Start");
         mediaPlayer.start();
         isPlaying.postValue(mediaPlayer.isPlaying());
         myHandler.postDelayed(UpdateSongTime, 100);
@@ -153,10 +142,8 @@ public class PlaybackViewModel extends ViewModel {
             currentSong++;
             String song = musicList2[currentSong].getURL();
             musicInfo.setValue(musicList2[currentSong]);
-            setupMediaPlayer(Uri.parse(song));
-            start();
+            setupMediaPlayer(song);
             return true;
-
         }
         return false;
     }
@@ -169,8 +156,7 @@ public class PlaybackViewModel extends ViewModel {
                 currentSong--;
                 String song = musicList2[currentSong].getURL();
                 musicInfo.setValue(musicList2[currentSong]);
-                setupMediaPlayer(Uri.parse(song));
-                start();
+                setupMediaPlayer(song);
             }
         }
     }

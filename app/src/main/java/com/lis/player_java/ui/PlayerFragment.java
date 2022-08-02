@@ -28,8 +28,6 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
-import jp.wasabeef.picasso.transformations.BlurTransformation;
-
 public class PlayerFragment extends Fragment {
     private FragmentPlayerBinding binding;
     private PlaybackViewModel viewModel;
@@ -63,7 +61,7 @@ public class PlayerFragment extends Fragment {
                 }
 
                 binding.songName.setText(musicInfo.getTitle());
-                binding.songAuthor.setText(musicInfo.getTitle());
+                binding.songAuthor.setText(musicInfo.getArtist());
             }
         });
 
