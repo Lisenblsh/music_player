@@ -94,6 +94,8 @@ public class PlaybackViewModel extends ViewModel {
             });
         } catch (IOException e) {
             e.printStackTrace();
+
+            //Тут надо будет с ошибками разобраться
         }
     }
 
