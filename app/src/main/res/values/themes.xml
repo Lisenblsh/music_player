@@ -8,5 +8,12 @@
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
         
         <item name="android:textColor">@color/black</item>
+
+    </style>
+
+    <style name="Theme.Player_java.IconsTint" parent="Theme.Player_java">
+        <item name="tint">@color/black</item>
+        <item name="android:thumbTint">@color/black</item>
+        <item name="android:progressTint">@color/black</item>
     </style>
 </resources>

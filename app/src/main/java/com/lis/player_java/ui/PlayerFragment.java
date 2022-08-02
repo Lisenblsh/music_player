@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +21,14 @@ import com.lis.player_java.databinding.FragmentPlayerBinding;
 import com.lis.player_java.di.Injection;
 import com.lis.player_java.tool.LoopingState;
 import com.lis.player_java.viewModel.PlaybackViewModel;
+import com.squareup.picasso.Picasso;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
+
+import jp.wasabeef.picasso.transformations.BlurTransformation;
 
 public class PlayerFragment extends Fragment {
     private FragmentPlayerBinding binding;
@@ -39,8 +43,6 @@ public class PlayerFragment extends Fragment {
                 this, getFactory()
         ).get(PlaybackViewModel.class);
 
-        viewModel.setupMediaPlayer(R.raw.music);
-
         bindElement();
         return binding.getRoot();
     }
@@ -49,13 +51,29 @@ public class PlayerFragment extends Fragment {
     private void bindElement() {
         onStartNewSound();
 
+        ImageFun imageFun = new ImageFun();
+
+        viewModel.getMusicInfo().observe(getViewLifecycleOwner(), musicInfo -> {
+            if(musicInfo != null){
+                String image = musicInfo.getAlbum().getThumb().getPhoto600();
+                Log.e("imaage",image);
+                if(image != null){
+                    imageFun.setImageToBackground(binding.backgroundImage, image);
+                    imageFun.setImage(binding.songImage, image);
+                }
+
+                binding.songName.setText(musicInfo.getTitle());
+                binding.songAuthor.setText(musicInfo.getTitle());
+            }
+        });
+
         viewModel.getPosition().observe(getViewLifecycleOwner(), position -> {
             binding.songPosition.setText(getStringSongDuration(position.longValue()));
             binding.songProgress.setProgress(position.intValue());
         });
 
         viewModel.isPlaying().observe(getViewLifecycleOwner(), isPlaying -> {
-            new ImageFun().setImage(binding.buttonPlayPause,
+            imageFun.setImage(binding.buttonPlayPause,
                     isPlaying ? R.drawable.ic_baseline_pause_24
                             : R.drawable.ic_baseline_play_arrow_24);
 
@@ -64,13 +82,13 @@ public class PlayerFragment extends Fragment {
         viewModel.getLoopingState().observe(getViewLifecycleOwner(), loopingState -> {
             switch (loopingState) {
                 case NotLoop:
-                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_plus_one_24);
+                    imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_plus_one_24);
                     break;
                 case SingleLoop:
-                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_loop_24);
+                    imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_loop_24);
                     break;
                 case PlaylistLoop:
-                    new ImageFun().setImage(binding.buttonLoop, R.drawable.ic_baseline_low_priority_24);
+                    imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_low_priority_24);
                     break;
             }
         });

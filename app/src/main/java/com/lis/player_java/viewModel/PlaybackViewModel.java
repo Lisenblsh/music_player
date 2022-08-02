@@ -2,20 +2,29 @@ package com.lis.player_java.viewModel;
 
 import android.app.Application;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.lis.player_java.data.Model.Item;
+import com.lis.player_java.data.Model.VkMusic;
 import com.lis.player_java.data.repository.MusicRepository;
 import com.lis.player_java.tool.LoopingState;
+
+import java.io.IOException;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PlaybackViewModel extends ViewModel {
     private final Application application;
     private final MusicRepository repository;
-    private MediaPlayer mediaPlayer;
-    private MediaPlayer nextPlayer;
+    private MediaPlayer mediaPlayer= new MediaPlayer();
     private final Handler myHandler = new Handler();
 
     private int currentSong = 0;
@@ -23,7 +32,6 @@ public class PlaybackViewModel extends ViewModel {
     private final MutableLiveData<Double> position = new MutableLiveData<>();
 
     public LiveData<Double> getPosition() {
-        position.postValue((double) mediaPlayer.getCurrentPosition());
         return position;
     }
 
@@ -50,30 +58,74 @@ public class PlaybackViewModel extends ViewModel {
         mediaPlayer.setLooping(loopingState == LoopingState.SingleLoop);
     }
 
+    private MutableLiveData<Item> musicInfo = new MutableLiveData<>();
+
+    public LiveData<Item> getMusicInfo() {
+        return musicInfo;
+    }
+
+    private MutableLiveData<VkMusic> musicList = new MutableLiveData<>();
+
+    private Item[] musicList2;
+
+    private void setMusicList(VkMusic value) {
+        musicList.setValue(value);
+        musicList2 = value.getResponse().getItems();
+        musicInfo.setValue(value.getResponse().getItems()[0]);
+    }
+
     PlaybackViewModel(Application application,
                       MusicRepository repository) {
         this.application = application;
         this.repository = repository;
+        getMusicList();
     }
 
-    public void setupMediaPlayer(int song) {
+    private void setupMediaPlayer(Uri song) {
         if (mediaPlayer != null) {
             mediaPlayer.stop();
         }
 
-        mediaPlayer = MediaPlayer.create(application.getApplicationContext(), song);
+        try {
+            mediaPlayer.setDataSource(application.getApplicationContext(),song);
+            mediaPlayer.prepareAsync();
+        } catch (IllegalArgumentException e) {
+            //"AudioTrackUrl seems to be incorrectly formatted"
+        } catch (IllegalStateException e) {
+            //"MediaPlayer is in an illegal state"
+        } catch (IOException e) {
+            //"MediaPlayer failed due to exception"
+        }
         mediaPlayer.setOnCompletionListener(mp -> {
-            boolean isLastSong = nextSong();
+            /*boolean isLastSong = nextSong();
             if (isLastSong) {
                 mp.stop();
-            }
+            }*/
 
         });
         position.setValue((double) mediaPlayer.getCurrentPosition());
         duration.setValue((double) mediaPlayer.getDuration());
         isPlaying.setValue(mediaPlayer.isPlaying());
         loopingState.setValue(LoopingState.NotLoop);
-        //mediaPlayer.prepareAsync();
+    }
+
+    private void getMusicList() {
+        repository.getMusicList().enqueue(new Callback<VkMusic>() {
+            @Override
+            public void onResponse(@NonNull Call<VkMusic> call, @NonNull Response<VkMusic> response) {
+                if (response.isSuccessful() && response.body().getResponse() != null) {
+                    setMusicList(response.body());
+                    String song = response.body().getResponse().getItems()[0].getURL();
+                    setupMediaPlayer(Uri.parse(song));
+                }
+                //добавить обработчик ошибок
+            }
+
+            @Override
+            public void onFailure(Call<VkMusic> call, Throwable t) {
+                //и сюда
+            }
+        });
     }
 
     public void start() {
@@ -96,12 +148,15 @@ public class PlaybackViewModel extends ViewModel {
     }
 
     public boolean nextSong() {
-        if (currentSong != 2) {
+        int playListLength = musicList2.length;
+        if (currentSong < playListLength) {
             currentSong++;
-            int i = repository.getMusicList()[currentSong];
-            setupMediaPlayer(i);
+            String song = musicList2[currentSong].getURL();
+            musicInfo.setValue(musicList2[currentSong]);
+            setupMediaPlayer(Uri.parse(song));
             start();
             return true;
+
         }
         return false;
     }
@@ -110,10 +165,11 @@ public class PlaybackViewModel extends ViewModel {
         if (mediaPlayer.getCurrentPosition() > 2000) {
             seekTo(0);
         } else {
-            if (currentSong != 0) {
+            if (currentSong > 0) {
                 currentSong--;
-                int i = repository.getMusicList()[currentSong];
-                setupMediaPlayer(i);
+                String song = musicList2[currentSong].getURL();
+                musicInfo.setValue(musicList2[currentSong]);
+                setupMediaPlayer(Uri.parse(song));
                 start();
             }
         }

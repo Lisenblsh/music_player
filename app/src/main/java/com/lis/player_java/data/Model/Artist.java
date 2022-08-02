@@ -1,24 +1,37 @@
 package com.lis.player_java.data.Model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.SerializedName;
 
 public class Artist {
+    @SerializedName("name")
     private String name;
+    @SerializedName("domain")
     private String domain;
+    @SerializedName("id")
     private String id;
 
-    @JsonProperty("name")
-    public String getName() { return name; }
-    @JsonProperty("name")
-    public void setName(String value) { this.name = value; }
+    public String getName() {
+        return name;
+    }
 
-    @JsonProperty("domain")
-    public String getDomain() { return domain; }
-    @JsonProperty("domain")
-    public void setDomain(String value) { this.domain = value; }
+    public void setName(String value) {
+        this.name = value;
+    }
 
-    @JsonProperty("id")
-    public String getID() { return id; }
-    @JsonProperty("id")
-    public void setID(String value) { this.id = value; }
+    public String getDomain() {
+        return domain;
+    }
+
+    public void setDomain(String value) {
+        this.domain = value;
+    }
+
+    public String getID() {
+        return id;
+    }
+
+    public void setID(String value) {
+        this.id = value;
+    }
 }

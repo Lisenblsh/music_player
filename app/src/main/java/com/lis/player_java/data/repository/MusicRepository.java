@@ -1,7 +1,10 @@
 package com.lis.player_java.data.repository;
 
 import com.lis.player_java.R;
+import com.lis.player_java.data.Model.VkMusic;
 import com.lis.player_java.data.network.retrofit.RetrofitService;
+
+import retrofit2.Call;
 
 public class MusicRepository {
 
@@ -10,7 +13,11 @@ public class MusicRepository {
     public MusicRepository(RetrofitService service){
         this.service = service;
     }
-    public int[] getMusicList(){
-        return new int[] {R.raw.music,R.raw.music2,R.raw.music3};
+    public Call<VkMusic> getMusicList(){
+        return service.getMusic(
+                "***REMOVED***",
+                10,
+                0
+        );
     }
 }
