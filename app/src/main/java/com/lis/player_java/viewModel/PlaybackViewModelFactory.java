@@ -10,10 +10,8 @@ import androidx.lifecycle.ViewModel;
 import com.lis.player_java.data.repository.MusicRepository;
 
 public final class PlaybackViewModelFactory extends AbstractSavedStateViewModelFactory {
-    Application application;
     MusicRepository musicRepository;
-    public PlaybackViewModelFactory(Application application, MusicRepository musicRepository) {
-        this.application = application;
+    public PlaybackViewModelFactory(MusicRepository musicRepository) {
         this.musicRepository = musicRepository;
     }
 
@@ -23,7 +21,7 @@ public final class PlaybackViewModelFactory extends AbstractSavedStateViewModelF
                                              @NonNull Class<T> modelClass,
                                              @NonNull SavedStateHandle handle) {
         if (modelClass.isAssignableFrom(PlaybackViewModel.class)) {
-            return (T) new PlaybackViewModel(application, musicRepository);
+            return (T) new PlaybackViewModel(musicRepository);
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
     }

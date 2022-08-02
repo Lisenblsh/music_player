@@ -1,6 +1,5 @@
 package com.lis.player_java.data.Model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 public class VkMusicForSingle {

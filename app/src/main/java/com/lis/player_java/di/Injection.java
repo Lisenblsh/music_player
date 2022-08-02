@@ -19,7 +19,7 @@ public class Injection {
     }
 
     @NonNull
-    public final ViewModelProvider.Factory provideViewModelFactory(Application application, String userAgent) {
-        return new PlaybackViewModelFactory(application, provideRepository(userAgent));
+    public final ViewModelProvider.Factory provideViewModelFactory(String userAgent) {
+        return new PlaybackViewModelFactory(provideRepository(userAgent));
     }
 }

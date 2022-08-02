@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +18,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.lis.player_java.ImageFun;
 import com.lis.player_java.R;
+import com.lis.player_java.data.Model.Item;
+import com.lis.player_java.data.Model.Thumb;
 import com.lis.player_java.databinding.FragmentPlayerBinding;
 import com.lis.player_java.di.Injection;
 import com.lis.player_java.tool.LoopingState;
@@ -25,7 +28,9 @@ import com.squareup.picasso.Picasso;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerFragment extends Fragment {
@@ -53,29 +58,42 @@ public class PlayerFragment extends Fragment {
 
         viewModel.getMusicInfo().observe(getViewLifecycleOwner(), musicInfo -> {
             if(musicInfo != null){
-                String image = musicInfo.getAlbum().getThumb().getPhoto600();
-                Log.e("imaage",image);
-                if(image != null){
-                    imageFun.setImageToBackground(binding.backgroundImage, image);
-                    imageFun.setImage(binding.songImage, image);
+                Thumb thumb = null;
+                try {
+                    thumb = musicInfo.getAlbum().getThumb();
+
+                } catch (NullPointerException e){
+                    Log.e("info", Objects.toString(musicInfo));
+                }
+
+                if(thumb != null){
+                    String image = thumb.getPhoto600();
+                    if(image != null){
+                        imageFun.setImageToBackground(binding.backgroundImage, image);
+                        imageFun.setImage(binding.songImage, image);
+                    }
+                } else {
+                    //для установки дефолтной картинки
+                    imageFun.setImageToBackground(binding.backgroundImage, R.drawable.song_image);
+                    imageFun.setImage(binding.songImage, R.drawable.song_image);
                 }
 
                 binding.songName.setText(musicInfo.getTitle());
                 binding.songAuthor.setText(musicInfo.getArtist());
             }
-        });
+        });//заполнение сведений о песне
 
         viewModel.getPosition().observe(getViewLifecycleOwner(), position -> {
             binding.songPosition.setText(getStringSongDuration(position.longValue()));
             binding.songProgress.setProgress(position.intValue());
-        });
+        });//установка текущей позиции
 
         viewModel.isPlaying().observe(getViewLifecycleOwner(), isPlaying -> {
             imageFun.setImage(binding.buttonPlayPause,
                     isPlaying ? R.drawable.ic_baseline_pause_24
                             : R.drawable.ic_baseline_play_arrow_24);
 
-        });
+        });//установка иконки play\pause кнопки
 
         viewModel.getLoopingState().observe(getViewLifecycleOwner(), loopingState -> {
             switch (loopingState) {
@@ -89,7 +107,13 @@ public class PlayerFragment extends Fragment {
                     imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_low_priority_24);
                     break;
             }
-        });
+        });// установка иконки зацикливания
+
+        viewModel.getSuccessGetMusic().observe(getViewLifecycleOwner(), isSuccessGetMusic-> {
+            if(!isSuccessGetMusic){
+                Toast.makeText(requireContext(), "Произошла ошибка", Toast.LENGTH_SHORT).show();
+            }
+        });//для обработки ошибок видимо
 
         binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener());
 
@@ -119,7 +143,6 @@ public class PlayerFragment extends Fragment {
     }
 
     private void onStartNewSound() {
-
         viewModel.getDuration().observe(getViewLifecycleOwner(), songDuration -> {
             binding.songProgress.setMax(songDuration.intValue());
             binding.songDuration.setText(getStringSongDuration(songDuration.longValue()));
@@ -200,6 +223,6 @@ public class PlayerFragment extends Fragment {
     private ViewModelProvider.Factory getFactory() {
         String userAgent = getPreference().getString(getResources().getString(R.string.user_agent), "");
         //Добавть проерку userAgent ибо малоли что может произойти перебздеть стоит.
-        return Injection.INSTANCE.provideViewModelFactory(requireActivity().getApplication(), userAgent);
+        return Injection.INSTANCE.provideViewModelFactory(userAgent);
     }
 }

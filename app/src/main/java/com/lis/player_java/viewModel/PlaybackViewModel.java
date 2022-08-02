@@ -1,10 +1,7 @@
 package com.lis.player_java.viewModel;
 
-import android.app.Application;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -17,18 +14,24 @@ import com.lis.player_java.data.repository.MusicRepository;
 import com.lis.player_java.tool.LoopingState;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class PlaybackViewModel extends ViewModel {
-    private final Application application;
     private final MusicRepository repository;
     private final MediaPlayer mediaPlayer = new MediaPlayer();
     private final Handler myHandler = new Handler();
 
     private int currentSong = 0;
+
+    private MutableLiveData<Boolean> isSuccessGetMusic = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getSuccessGetMusic() {
+        return isSuccessGetMusic;
+    }
 
     private final MutableLiveData<Double> position = new MutableLiveData<>();
 
@@ -59,76 +62,103 @@ public class PlaybackViewModel extends ViewModel {
         mediaPlayer.setLooping(loopingState == LoopingState.SingleLoop);
     }
 
-    private MutableLiveData<Item> musicInfo = new MutableLiveData<>();
+    private final MutableLiveData<Item> musicInfo = new MutableLiveData<>();
 
     public LiveData<Item> getMusicInfo() {
         return musicInfo;
     }
 
-    private MutableLiveData<VkMusic> musicList = new MutableLiveData<>();
+    private final MutableLiveData<VkMusic> musicList = new MutableLiveData<>();
 
-    private Item[] musicList2;
+    @NonNull
+    private Item[] getMusicList() {
+        return musicList.getValue().getResponse().getItems();
+    }
 
     private void setMusicList(VkMusic value) {
         musicList.setValue(value);
-        musicList2 = value.getResponse().getItems();
         musicInfo.setValue(value.getResponse().getItems()[0]);
     }
 
-    PlaybackViewModel(Application application,
-                      MusicRepository repository) {
-        this.application = application;
+    PlaybackViewModel(MusicRepository repository) {
         this.repository = repository;
-        getMusicList();
+        duration.setValue(0d);
+        isSuccessGetMusic.setValue(true);
+        mediaPlayer.setOnPreparedListener(mediaPlayer -> {
+            start();
+            if (Objects.requireNonNull(getDuration().getValue()).intValue() == 0) {
+                duration.setValue((double) mediaPlayer.getDuration());
+            }
+
+        });
+        mediaPlayer.setOnCompletionListener(mediaPlayer -> {
+            if (getLoopingState().getValue() != LoopingState.SingleLoop) {
+                nextSong();
+            } else {
+                seekTo(0);
+            }
+        });
+        getMusicListFromRepo();
     }
 
-    private void setupMediaPlayer(String song) {
+    private void setupMediaPlayer(int currentSong) {
+        String song = Objects.requireNonNull(getMusicList())[currentSong].getURL();
+        musicInfo.setValue(getMusicList()[currentSong]);
         mediaPlayer.reset();
         try {
             mediaPlayer.setDataSource(song);
+            position.setValue((double) mediaPlayer.getCurrentPosition());
+            Item asd;
+            long _duration = ((asd = musicInfo.getValue()) != null)
+                    ? asd.getDuration() * 1000 : 0;
+            duration.setValue((double) _duration);
             mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(mediaPlayer -> {
-                start();
-                position.setValue((double) mediaPlayer.getCurrentPosition());
-                duration.setValue((double) mediaPlayer.getDuration());
-            });
-            mediaPlayer.setOnCompletionListener(mediaPlayer-> {
-                nextSong();
-            });
+
         } catch (IOException e) {
             e.printStackTrace();
+            isSuccessGetMusic.setValue(false);
 
-            //Тут надо будет с ошибками разобраться
+        } catch (IllegalStateException e) {
+            isSuccessGetMusic.setValue(false);
         }
     }
 
-    private void getMusicList() {
+    private void getMusicListFromRepo() {
         repository.getMusicList().enqueue(new Callback<VkMusic>() {
             @Override
             public void onResponse(@NonNull Call<VkMusic> call, @NonNull Response<VkMusic> response) {
-                if (response.isSuccessful() && response.body().getResponse() != null) {
+                if (response.isSuccessful()
+                        && response.body() != null
+                        && response.body().getResponse() != null) {
                     setMusicList(response.body());
-                    String song = response.body().getResponse().getItems()[0].getURL();
-                    setupMediaPlayer(song);
+                    setupMediaPlayer(0);
+                    isSuccessGetMusic.setValue(true);
+                } else {
+                    isSuccessGetMusic.setValue(false);
                 }
-                //добавить обработчик ошибок
             }
 
             @Override
-            public void onFailure(Call<VkMusic> call, Throwable t) {
-                //и сюда
+            public void onFailure(@NonNull Call<VkMusic> call, @NonNull Throwable t) {
+                isSuccessGetMusic.setValue(false);
             }
         });
     }
 
+    private boolean needToPlay = true;
+
     public void start() {
-        Log.e("Stat", "Start");
-        mediaPlayer.start();
+        if (!needToPlay) {
+            mediaPlayer.start();
+        } else {
+            needToPlay = false;
+        }
         isPlaying.postValue(mediaPlayer.isPlaying());
         myHandler.postDelayed(UpdateSongTime, 100);
     }
 
     public void pause() {
+        needToPlay = true;
         mediaPlayer.pause();
         isPlaying.postValue(mediaPlayer.isPlaying());
         myHandler.removeCallbacks(UpdateSongTime);
@@ -141,16 +171,16 @@ public class PlaybackViewModel extends ViewModel {
 
     }
 
-    public boolean nextSong() {
-        int playListLength = musicList2.length;
-        if (currentSong < playListLength) {
+    public void nextSong() {
+        int playListLength = getMusicList().length;
+        if (currentSong < playListLength - 1) {
             currentSong++;
-            String song = musicList2[currentSong].getURL();
-            musicInfo.setValue(musicList2[currentSong]);
-            setupMediaPlayer(song);
-            return true;
+            setupMediaPlayer(currentSong);
+        } else if (currentSong == playListLength - 1 &&
+                getLoopingState().getValue() == LoopingState.PlaylistLoop) {
+            currentSong = 0;
+            setupMediaPlayer(currentSong);
         }
-        return false;
     }
 
     public void prevSong() {
@@ -159,9 +189,7 @@ public class PlaybackViewModel extends ViewModel {
         } else {
             if (currentSong > 0) {
                 currentSong--;
-                String song = musicList2[currentSong].getURL();
-                musicInfo.setValue(musicList2[currentSong]);
-                setupMediaPlayer(song);
+                setupMediaPlayer(currentSong);
             }
         }
     }
@@ -172,4 +200,6 @@ public class PlaybackViewModel extends ViewModel {
             myHandler.postDelayed(this, 100);
         }
     };
+
+
 }
