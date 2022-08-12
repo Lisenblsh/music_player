@@ -1,50 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    tools:context=".ui.AuthorizationFragment">
 
     <LinearLayout
-        android:id="@+id/login_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Логин"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <EditText
-            android:id="@+id/login_edit_text"
+            android:id="@+id/username_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="40dp"/>
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/password_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Пароль"/>
+            android:layout_marginHorizontal="50dp"
+            android:hint="@string/login_hint"
+            android:minHeight="30dp" />
+
+
         <EditText
             android:id="@+id/password_edit_text"
             android:layout_width="match_parent"
-            android:layout_height="40dp"/>
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="50dp"
+            android:hint="@string/password_hint"
+            android:inputType="textPassword"
+            android:minHeight="30dp" />
+
+        <Button
+            android:id="@+id/get_token_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/get_token_hint" />
+
+        <TextView
+            android:id="@+id/error_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:gravity="center"
+            tools:text="Было отправленно смс с кодом для подтверждения"
+            android:textColor="#FF0000"
+            android:visibility="invisible" />
+
+
+        <EditText
+            android:id="@+id/code_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="50dp"
+            android:hint="@string/code_from_sms_hint"
+            android:minHeight="30dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/captcha_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/captcha_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:src="@drawable/img"/>
+
+            <EditText
+                android:id="@+id/captcha_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="50dp"
+                android:hint="@string/text_from_picture_hint"
+                android:minHeight="30dp"
+                android:visibility="visible" />
+        </LinearLayout>
     </LinearLayout>
 
-    <Button
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:id="@+id/button_confirm"
-        android:text="войти"/>
-
-    <androidx.constraintlayout.helper.widget.Flow
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        app:flow_verticalStyle="packed"
-        app:layout_constraintVertical_bias=".5"
-        app:constraint_referenced_ids="login_layout,password_layout,button_confirm"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -124,7 +124,6 @@ public class PlayerFragment extends Fragment {
 
         binding.buttonLoop.setOnClickListener(this::loopClickListener);
     }
-
     private LoopingState loopingState = LoopingState.NotLoop;
 
     private void loopClickListener(View v) {

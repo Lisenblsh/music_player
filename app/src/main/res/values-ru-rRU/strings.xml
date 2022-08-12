@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">player_java</string>
+    <string name="login_hint">Логин (номер телефона)</string>
+    <string name="password_hint">Пароль</string>
+    <string name="get_token_hint">Получить токен</string>
+    <string name="code_from_sms_hint">Код из смс</string>
+    <string name="text_from_picture_hint">Текст с картинки</string>
+</resources>

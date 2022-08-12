@@ -36,7 +36,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     //Navigation
-    def nav_version = "2.5.0"
+    def nav_version = "2.5.1"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
@@ -58,10 +58,16 @@ dependencies {
     def ret_version = "2.9.0"
     implementation "com.squareup.retrofit2:retrofit:$ret_version"
     implementation "com.squareup.retrofit2:converter-gson:$ret_version"
-    implementation "com.squareup.okhttp3:okhttp:4.9.3"
+    implementation "com.squareup.retrofit2:converter-scalars:$ret_version"
+    implementation "com.squareup.okhttp3:okhttp:4.10.0"
 
     // jackson-annotations
     def jackson_version = "2.13.3"
     implementation "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+
+    // kotlinx-coroutines-jdk8
+    def kxcjdk_version = "1.6.4"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:$kxcjdk_version"
+
 
 }

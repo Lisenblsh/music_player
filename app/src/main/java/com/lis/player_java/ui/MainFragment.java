@@ -1,5 +1,7 @@
 package com.lis.player_java.ui;
 
+import static androidx.fragment.app.DialogFragment.STYLE_NO_TITLE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavDirections;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -23,6 +27,34 @@ public class MainFragment extends Fragment {
     public void onStart() {
         super.onStart();
         checkSavedToken();
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentMainBinding.inflate(inflater, container, false);
+        showAuthorizationFragment();
+        return binding.getRoot();
+    }
+
+    private void showAuthorizationFragment() {
+        if(checkToken()){
+            FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+            AuthorizationFragment authorizationFragment = new AuthorizationFragment();
+            authorizationFragment.setStyle(
+                    DialogFragment.STYLE_NO_TITLE,
+                    androidx.appcompat.R.style.AlertDialog_AppCompat
+            );
+            authorizationFragment.show(fragmentManager, "");
+        }
+    }
+
+    private Boolean checkToken() {
+
+        SharedPreferences pref = requireActivity()
+                .getSharedPreferences(getString(R.string.authorization_info), Context.MODE_PRIVATE);
+
+        return pref != null && pref.getString(getString(R.string.token_key), "").equals("");
     }
 
     private void checkSavedToken() {
@@ -51,14 +83,6 @@ public class MainFragment extends Fragment {
         NavHostFragment
                 .findNavController(this)
                 .navigate(directions);
-    }
-
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentMainBinding.inflate(inflater, container, false);
-
-        return binding.getRoot();
     }
 
 }
