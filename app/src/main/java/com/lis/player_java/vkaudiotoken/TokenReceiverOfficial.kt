@@ -6,6 +6,7 @@ import com.lis.player_java.vkaudiotoken.network.RetrofitService
 import com.lis.player_java.vkaudiotoken.network.VK_OFFICIAL
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import java.util.*
 import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
@@ -33,8 +34,10 @@ class TokenReceiverOfficial(
         val deviceID = generateRandomString()
 
         val retrofitService = RetrofitService.create(VK_OFFICIAL.userAgent, "https://oauth.vk.com/")
-
+        val lang = if(Locale.getDefault().language == "ru") "ru" else "en"
+        Locale.getDefault().language
         val response = retrofitService.getToken(
+            lang = lang,
             clientId = VK_OFFICIAL.clientId,
             clientSecret = VK_OFFICIAL.clientSecret,
             username = login,

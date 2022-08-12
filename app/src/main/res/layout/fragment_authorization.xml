@@ -62,7 +62,7 @@
 
         <LinearLayout
             android:id="@+id/captcha_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:visibility="gone">
@@ -71,7 +71,8 @@
                 android:id="@+id/captcha_image"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="50dp"
+                android:adjustViewBounds="true"
+                android:layout_marginHorizontal="100dp"
                 android:src="@drawable/img"/>
 
             <EditText
@@ -80,8 +81,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="50dp"
                 android:hint="@string/text_from_picture_hint"
-                android:minHeight="30dp"
-                android:visibility="visible" />
+                android:minHeight="30dp"/>
         </LinearLayout>
     </LinearLayout>
 

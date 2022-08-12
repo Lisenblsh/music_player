@@ -10,4 +10,8 @@
     <string name="get_token_hint">Get token</string>
     <string name="code_from_sms_hint">Code from sms</string>
     <string name="text_from_picture_hint">Text from picture</string>
+    <string name="sms_sent">A sms was sent with a confirmation code</string>
+    <string name="two_fa_error">Two-factor authentication error, try again</string>
+    <string name="request_error">Request error, try again</string>
+    <string name="token_not_sent">The token was not sent</string>
 </resources>

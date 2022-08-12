@@ -6,4 +6,8 @@
     <string name="get_token_hint">Получить токен</string>
     <string name="code_from_sms_hint">Код из смс</string>
     <string name="text_from_picture_hint">Текст с картинки</string>
+    <string name="sms_sent">Было отправлено смс с кодом подтверждения</string>
+    <string name="two_fa_error">Ошибка двухфакторной аунтификации, попробуйте снова</string>
+    <string name="request_error">Ошибка запроса, попробуйте снова</string>
+    <string name="token_not_sent">Токен не был отправлен</string>
 </resources>

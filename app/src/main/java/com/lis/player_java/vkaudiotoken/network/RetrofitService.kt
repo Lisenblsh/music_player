@@ -9,8 +9,9 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface RetrofitService {
-    @GET("token?grant_type=password&v=5.116&lang=en&2fa_supported=1&scope=all")
+    @GET("token?grant_type=password&v=5.116&2fa_supported=1&scope=all")
     suspend fun getToken(
+        @Query("lang") lang: String,
         @Query("client_id") clientId: String,
         @Query("client_secret") clientSecret: String,
         @Query("username") username: String,

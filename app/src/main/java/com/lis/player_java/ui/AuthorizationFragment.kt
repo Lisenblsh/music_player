@@ -45,12 +45,23 @@ class AuthorizationFragment : DialogFragment() {
 
     private var captchaSid: String? = null
     private suspend fun FragmentAuthorizationBinding.confirmListenerClick() {
-        val login = usernameEditText.text.toString().ifEmpty { return }
-        val password = passwordEditText.text.toString().ifEmpty { return }
+        val login = usernameEditText.text.toString().ifEmpty {
+            showToast(resources.getString(R.string.login_hint))
+            return
+        }
+        val password = passwordEditText.text.toString().ifEmpty {
+            showToast(resources.getString(R.string.password_hint))
+            return }
         val code = codeEditText.text.toString()
-            .ifEmpty { if (codeEditText.visibility == View.GONE) null else return }
+            .ifEmpty { if (codeEditText.visibility == View.GONE) null else {
+                showToast("code")
+                return
+            } }
         val captchaKey = captchaEditText.text.toString()
-            .ifEmpty { if (captchaEditText.visibility == View.GONE) null else return }
+            .ifEmpty { if (captchaLayout.visibility == View.GONE) null else {
+                showToast("captcha")
+                return
+            } }
         val tokenReceiver = TokenReceiverOfficial(login, password)
         try {
             val token = tokenReceiver.getToken(code, captchaSid, captchaKey)
@@ -63,17 +74,17 @@ class AuthorizationFragment : DialogFragment() {
                     errorMessage.visibility = View.VISIBLE
                 }
                 TokenExceptionType.TWO_FA_REQ -> {
-                    errorMessage.text = "Было отправлено смс с кодом подтверждения"
+                    errorMessage.text = resources.getString(R.string.sms_sent)
                     errorMessage.visibility = View.VISIBLE
                     codeEditText.visibility = View.VISIBLE
                 }
                 TokenExceptionType.TWO_FA_ERR -> {
-                    errorMessage.text = "Ошибка двухфакторной аунтификации, попробуйте снова."
+                    errorMessage.text = resources.getString(R.string.two_fa_error)
                     errorMessage.visibility = View.VISIBLE
                     hideElement()
                 }
                 TokenExceptionType.REQUEST_ERR -> {
-                    errorMessage.text = "Ошибка запроса, попробуйте снова."
+                    errorMessage.text = resources.getString(R.string.request_error)
                     errorMessage.visibility = View.VISIBLE
                     hideElement()
                 }
@@ -85,13 +96,17 @@ class AuthorizationFragment : DialogFragment() {
                     captchaLayout.visibility = View.VISIBLE
                 }
                 TokenExceptionType.TOKEN_NOT_RECEIVED -> {
-                    errorMessage.text = "Токен небыл отправлен"
+                    errorMessage.text = resources.getString(R.string.token_not_sent)
                     errorMessage.visibility = View.VISIBLE
                     hideElement()
                 }
             }
         }
 
+    }
+
+    private fun showToast(field: String) {
+        Toast.makeText(requireContext(), "Поле: $field не заполненно", Toast.LENGTH_LONG).show()
     }
 
     private fun FragmentAuthorizationBinding.hideElement() {
