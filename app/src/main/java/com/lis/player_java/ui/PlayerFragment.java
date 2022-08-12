@@ -16,19 +16,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.lis.player_java.ImageFun;
+import com.lis.player_java.tool.ImageFun;
 import com.lis.player_java.R;
-import com.lis.player_java.data.Model.Item;
-import com.lis.player_java.data.Model.Thumb;
+import com.lis.player_java.data.model.Thumb;
 import com.lis.player_java.databinding.FragmentPlayerBinding;
 import com.lis.player_java.di.Injection;
 import com.lis.player_java.tool.LoopingState;
 import com.lis.player_java.viewModel.PlaybackViewModel;
-import com.squareup.picasso.Picasso;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;

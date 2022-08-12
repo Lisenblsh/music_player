@@ -1,4 +1,10 @@
 pluginManagement {
+    def kotlinVersion="1.6.20"
+    def kspVersion="1.6.20-1.0.4"
+    plugins {
+        id 'com.google.devtools.ksp' version "$kspVersion" apply false
+        id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion" apply false
+    }
     repositories {
         gradlePluginPortal()
         google()

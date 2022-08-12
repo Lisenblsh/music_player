@@ -1,4 +1,4 @@
-package com.lis.player_java.data.Model;
+package com.lis.player_java.data.model;
 
 import com.google.gson.annotations.SerializedName;
 

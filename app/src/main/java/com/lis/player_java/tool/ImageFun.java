@@ -1,4 +1,4 @@
-package com.lis.player_java;
+package com.lis.player_java.tool;
 
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;

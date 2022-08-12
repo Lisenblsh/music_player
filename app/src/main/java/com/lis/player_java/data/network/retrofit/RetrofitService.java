@@ -1,6 +1,6 @@
 package com.lis.player_java.data.network.retrofit;
 
-import com.lis.player_java.data.Model.VkMusic;
+import com.lis.player_java.data.model.VkMusic;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

@@ -8,8 +8,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.lis.player_java.data.Model.Item;
-import com.lis.player_java.data.Model.VkMusic;
+import com.lis.player_java.data.model.Item;
+import com.lis.player_java.data.model.VkMusic;
 import com.lis.player_java.data.repository.MusicRepository;
 import com.lis.player_java.tool.LoopingState;
 

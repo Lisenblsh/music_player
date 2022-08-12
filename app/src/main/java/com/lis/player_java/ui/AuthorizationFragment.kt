@@ -1,6 +1,5 @@
 package com.lis.player_java.ui
 
-import android.app.backup.BackupAgent
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -8,20 +7,15 @@ import android.os.Bundle
 import com.lis.player_java.vkaudiotoken.TokenReceiverOfficial
 import android.widget.Toast
 import com.lis.player_java.R
-import android.util.Log
 import android.view.View
-import android.widget.EditText
-import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.lis.player_java.ImageFun
+import com.lis.player_java.tool.ImageFun
 import com.lis.player_java.databinding.FragmentAuthorizationBinding
 import com.lis.player_java.vkaudiotoken.TokenException
 import com.lis.player_java.vkaudiotoken.TokenExceptionType
 import com.lis.player_java.vkaudiotoken.network.VK_OFFICIAL
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 class AuthorizationFragment : DialogFragment() {
     private lateinit var binding: FragmentAuthorizationBinding
