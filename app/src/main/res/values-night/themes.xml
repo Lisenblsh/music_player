@@ -17,4 +17,10 @@
         <item name="android:thumbTint">@color/black</item>
         <item name="android:progressTint">@color/black</item>
     </style>
+
+    <style name="TaskBarTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabIndicatorColor">@color/accent_night</item>
+        <item name="tabBackground">@color/white</item>
+        <item name="tabSelectedTextColor">@color/accent_night</item>
+    </style>
 </resources>

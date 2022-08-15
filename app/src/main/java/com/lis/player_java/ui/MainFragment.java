@@ -50,7 +50,6 @@ public class MainFragment extends Fragment {
     }
 
     private Boolean checkToken() {
-
         SharedPreferences pref = requireActivity()
                 .getSharedPreferences(getString(R.string.authorization_info), Context.MODE_PRIVATE);
 

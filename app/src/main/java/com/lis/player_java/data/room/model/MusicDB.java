@@ -20,9 +20,9 @@ public class MusicDB {
     public boolean isExplicit;
     public String url;
     public boolean isHq;
-    public Album album;
-    public Artist[] mainArtists;
-    public Artist[] featuredArtists;
+    public Long albumId;
+    public String mainArtistsId;
+    public String featuredArtistsId;
     public Long lyricsID;
     public GenreType genreID;
 }
