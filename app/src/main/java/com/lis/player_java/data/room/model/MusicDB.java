@@ -1,5 +1,6 @@
 package com.lis.player_java.data.room.model;
 
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -9,21 +10,43 @@ import com.lis.player_java.data.model.Album;
 import com.lis.player_java.data.model.Artist;
 import com.lis.player_java.data.room.GenreType;
 
-@Entity(tableName = "table_music")
+import java.util.List;
+
+@Entity
 public class MusicDB {
     @PrimaryKey
     public Long id;
+    public Long ownerId;
+    public String contentIs; //ownerID+id
     public String artist;
     public String title;
-    public long duration;
-    public String contentID; //id + ownerID
-    public boolean isExplicit;
     public String url;
-    public boolean isHq;
-    public Long albumId;
-    public String mainArtistsId;
-    public String featuredArtistsId;
-    public Long lyricsID;
-    public GenreType genreID;
+    public String photo300;
+    public String photo600;
+    public long duration;
+    public boolean isExplicit;
+    @Embedded
+    public AlbumForMusic album;
+    public Long lyricsId;
+    public GenreType genreId;
+
+    public MusicDB(Long id, Long ownerId, String contentIs, String artist, String title, String url,
+                   String photo300, String photo600, long duration, boolean isExplicit,
+                   AlbumForMusic album, Long lyricsId, GenreType genreId) {
+        this.id = id;
+        this.ownerId = ownerId;
+        this.contentIs = contentIs;
+        this.artist = artist;
+        this.title = title;
+        this.url = url;
+        this.photo300 = photo300;
+        this.photo600 = photo600;
+        this.duration = duration;
+        this.isExplicit = isExplicit;
+        this.album = album;
+        this.lyricsId = lyricsId;
+        this.genreId = genreId;
+    }
 }
+
 

@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.lis.player_java.R;
+import com.lis.player_java.data.room.MusicDatabase;
+import com.lis.player_java.data.room.model.AlbumDB;
 import com.lis.player_java.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,5 +19,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        MusicDatabase db = MusicDatabase.getInstance(getApplicationContext());
+        Thread newThread = new Thread(() -> {
+            db.musicDao().insertAlbum(new AlbumDB(
+                    12L,12L,"","",12,12,true,true,"", ""
+            ));
+        });
+        newThread.start();
+
     }
 }
