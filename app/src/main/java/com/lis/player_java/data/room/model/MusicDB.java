@@ -4,14 +4,6 @@ import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.google.gson.annotations.SerializedName;
-import com.lis.player_java.data.model.Ads;
-import com.lis.player_java.data.model.Album;
-import com.lis.player_java.data.model.Artist;
-import com.lis.player_java.data.room.GenreType;
-
-import java.util.List;
-
 @Entity
 public class MusicDB {
     @PrimaryKey

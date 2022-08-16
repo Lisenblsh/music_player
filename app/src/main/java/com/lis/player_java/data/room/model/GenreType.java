@@ -1,4 +1,4 @@
-package com.lis.player_java.data.room;
+package com.lis.player_java.data.room.model;
 
 public enum GenreType {
 	Rock(1),

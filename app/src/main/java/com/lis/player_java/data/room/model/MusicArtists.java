@@ -3,8 +3,6 @@ package com.lis.player_java.data.room.model;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
-import com.lis.player_java.data.room.ArtistType;
-
 import java.util.List;
 
 public class MusicArtists {
