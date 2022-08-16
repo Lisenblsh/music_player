@@ -1,5 +1,8 @@
 package com.lis.player_java.data.room.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum GenreType {
 	Rock(1),
 	Pop(2),
@@ -23,6 +26,20 @@ public enum GenreType {
 	Electropop_Disco(22),
 	Jazz_Blues(1001);
 
+	private final int id;
+
 	GenreType(int id) {
+		this.id = id;
+	}
+
+	private static final Map<Integer,GenreType> map;
+	static {
+		map = new HashMap();
+		for (GenreType v : GenreType.values()) {
+			map.put(v.id, v);
+		}
+	}
+	public static GenreType getGenreById(int id) {
+		return map.get(id);
 	}
 }

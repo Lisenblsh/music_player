@@ -37,9 +37,12 @@ public interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMusic(MusicDB musicDB);
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertMusicList(List<MusicDB> musics);
+
     @Transaction
     @Query("SELECT * FROM MusicDB")
-    MusicDB getMusic();
+    List<MusicDB> getMusicList();
 
     @Transaction
     @Query("SELECT * FROM MusicDB WHERE id = :id")
@@ -48,6 +51,10 @@ public interface MusicDao {
     @Transaction
     @Query("DELETE FROM MusicDB WHERE id = :id")
     void deleteMusicById(Long id);
+
+    @Transaction
+    @Query("DELETE FROM MusicDB")
+    void deleteMusic();
 
     //ArtistDB
     @Insert

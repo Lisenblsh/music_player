@@ -218,7 +218,8 @@ public class PlayerFragment extends Fragment {
 
     private ViewModelProvider.Factory getFactory() {
         String userAgent = getPreference().getString(getResources().getString(R.string.user_agent), "");
+        String token = getPreference().getString(getResources().getString(R.string.token_key),"");
         //Добавть проерку userAgent ибо малоли что может произойти перебздеть стоит.
-        return Injection.INSTANCE.provideViewModelFactory(userAgent);
+        return Injection.INSTANCE.provideViewModelFactory(userAgent,token);
     }
 }

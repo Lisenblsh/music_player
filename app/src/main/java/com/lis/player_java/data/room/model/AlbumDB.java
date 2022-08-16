@@ -14,8 +14,8 @@ public class AlbumDB {
     public int musicCount;
     public Boolean isFollowing;
     public Boolean isExplicit;
+    public String photo300;
     public String photo600;
-    public String photo1200;
 
     public AlbumDB(Long id, Long ownerId, String accessKey, String title, int year, int musicCount,
                    boolean isFollowing, boolean isExplicit, String photo600, String photo1200) {
@@ -27,7 +27,7 @@ public class AlbumDB {
         this.musicCount = musicCount;
         this.isFollowing = isFollowing;
         this.isExplicit = isExplicit;
+        this.photo300 = photo300;
         this.photo600 = photo600;
-        this.photo1200 = photo1200;
     }
 }

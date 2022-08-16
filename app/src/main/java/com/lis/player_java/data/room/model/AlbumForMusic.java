@@ -5,7 +5,7 @@ public class AlbumForMusic {
     public Long albumOwnerId;
     public String accessKey;
 
-    AlbumForMusic(Long albumId, Long albumOwnerId, String accessKey){
+    public AlbumForMusic(Long albumId, Long albumOwnerId, String accessKey){
         this.albumId = albumId;
         this.albumOwnerId = albumOwnerId;
         this.accessKey = accessKey;

@@ -14,11 +14,11 @@ public class MusicRepository {
         this.service = service;
         this.token = token;
     }
-    public Call<VkMusic> getMusicList(){
+    public Call<VkMusic> getMusicList(Integer count, Integer offset){
         return service.getMusic(
                 token,
-                10,
-                0
+                count,
+                offset
         );
     }
 }

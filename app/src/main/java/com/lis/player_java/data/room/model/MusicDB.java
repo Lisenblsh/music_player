@@ -13,8 +13,8 @@ public class MusicDB {
     public String artist;
     public String title;
     public String url;
-    public String photo300;
     public String photo600;
+    public String photo1200;
     public long duration;
     public boolean isExplicit;
     @Embedded
@@ -31,8 +31,8 @@ public class MusicDB {
         this.artist = artist;
         this.title = title;
         this.url = url;
-        this.photo300 = photo300;
         this.photo600 = photo600;
+        this.photo1200 = photo1200;
         this.duration = duration;
         this.isExplicit = isExplicit;
         this.album = album;
