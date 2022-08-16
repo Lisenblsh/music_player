@@ -14,12 +14,12 @@ public class Injection {
     @NonNull
     public static final Injection INSTANCE = new Injection();
 
-    private MusicRepository provideRepository(String userAgent) {
-        return new MusicRepository(RetrofitClient.create(userAgent));
+    private MusicRepository provideRepository(String userAgent, String token) {
+        return new MusicRepository(RetrofitClient.create(userAgent), token);
     }
 
     @NonNull
-    public final ViewModelProvider.Factory provideViewModelFactory(String userAgent) {
-        return new PlaybackViewModelFactory(provideRepository(userAgent));
+    public final ViewModelProvider.Factory provideViewModelFactory(String userAgent, String token) {
+        return new PlaybackViewModelFactory(provideRepository(userAgent,token));
     }
 }

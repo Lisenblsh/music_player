@@ -7,14 +7,16 @@ import retrofit2.Call;
 
 public class MusicRepository {
 
-    private RetrofitService service;
+    private final RetrofitService service;
+    private final String token;
 
-    public MusicRepository(RetrofitService service){
+    public MusicRepository(RetrofitService service, String token){
         this.service = service;
+        this.token = token;
     }
     public Call<VkMusic> getMusicList(){
         return service.getMusic(
-                "***REMOVED***",
+                token,
                 10,
                 0
         );
