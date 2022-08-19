@@ -85,6 +85,20 @@ public class PlayerFragment extends Fragment {
             binding.songProgress.setProgress(position.intValue());
         });//установка текущей позиции
 
+        viewModel.downloadPosition.observe(getViewLifecycleOwner(), downloadPosition -> {
+            int progress;
+            if(downloadPosition != 0){
+                progress = binding.songProgress.getMax() * downloadPosition / 100;
+            } else {
+                progress = 0;
+            }
+            if(binding.songProgress.getSecondaryProgress() != progress){
+                binding.songProgress.setSecondaryProgress(progress);
+                Log.e("download", ""+progress+"|"+downloadPosition);
+            }
+
+        });
+
         viewModel.isPlaying().observe(getViewLifecycleOwner(), isPlaying -> {
             imageFun.setImage(binding.buttonPlayPause,
                     isPlaying ? R.drawable.ic_baseline_pause_24

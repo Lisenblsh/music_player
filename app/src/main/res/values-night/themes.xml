@@ -13,9 +13,10 @@
     </style>
 
     <style name="Theme.Player_java.IconsTint" parent="Theme.Player_java">
-        <item name="tint">@color/black</item>
-        <item name="android:thumbTint">@color/black</item>
-        <item name="android:progressTint">@color/black</item>
+        <item name="tint">@color/white</item>
+        <item name="android:thumbTint">@color/white</item>
+        <item name="android:progressTint">@color/white</item>
+        <item name="android:secondaryProgressTint">@color/grey_progress_night</item>
     </style>
 
     <style name="TaskBarTabLayout" parent="Widget.Design.TabLayout">

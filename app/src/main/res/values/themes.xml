@@ -17,6 +17,7 @@
         <item name="tint">@color/black</item>
         <item name="android:thumbTint">@color/black</item>
         <item name="android:progressTint">@color/black</item>
+        <item name="android:secondaryProgressTint">@color/grey_progress_light</item>
     </style>
 
     <style name="TaskBarTabLayout" parent="Widget.Design.TabLayout">

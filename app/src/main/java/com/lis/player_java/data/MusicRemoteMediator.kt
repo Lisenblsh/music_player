@@ -59,17 +59,18 @@ class MusicRemoteMediator(
                 val prevKey = if (page == STARTING_PAGE_INDEX) null else page - 1
                 val nextKey = if (endOfPaginationReached) null else page + 1
 
-                database.musicDao().insertMusicList(musicList)
-                val keys =
-                    database.musicDao().musicList.takeLast(pageSize).map {
-                        RemoteKeys(
-                            it.id,
-                            prevKey?:0,
-                            nextKey?:0
-                        )
-                    }
-
-                database.musicDao().insertAllKeys(keys)
+                if (musicList != null) {
+                    database.musicDao().insertMusicList(musicList)
+                    val keys =
+                        database.musicDao().getMusicList().takeLast(pageSize).map {
+                            RemoteKeys(
+                                it.id,
+                                prevKey?:0,
+                                nextKey?:0
+                            )
+                        }
+                    database.musicDao().insertAllKeys(keys)
+                }
             }
             return MediatorResult.Success(endOfPaginationReached = endOfPaginationReached)
         } catch (e: IOException) {
@@ -84,21 +85,21 @@ class MusicRemoteMediator(
         offset: Int
     ): Pair<List<MusicDB>?, Boolean> {
         val musicList =
-            repository.getMusicList(count, offset).awaitResponse().body()?.response?.items?.map {
+            repository.getMusicList(count, offset).body()?.response?.items?.map {
                 MusicDB(
                     it.id,
-                    it.ownerID,
-                    "${it.id}_${it.ownerID}",
+                    it.ownerId,
+                    "${it.id}_${it.ownerId}",
                     it.artist,
                     it.title,
                     it.url,
-                    it.album.thumb.photo600,
-                    it.album.thumb.photo1200,
+                    it.album?.thumb?.photo600?:"",
+                    it.album?.thumb?.photo1200?:"",
                     it.duration,
                     it.isExplicit,
-                    AlbumForMusic(it.id, it.ownerID, it.accessKey),
-                    it.lyricsID,
-                    GenreType.getGenreById(it.genreID.toInt())
+                    AlbumForMusic(it.id, it.ownerId, it.accessKey),
+                    it.lyricsId?:0,
+                    GenreType.getGenreById(it.genreId?.toInt()?: 0)
                 )
             }
         val endOfPaginationReached = musicList.isNullOrEmpty()
@@ -107,7 +108,7 @@ class MusicRemoteMediator(
 
     private suspend fun getRemoteKeysClosestToCurrentPosition(state: PagingState<Int, MusicDB>): RemoteKeys? {
         return state.anchorPosition?.let { position ->
-            state.closestItemToPosition(position)?.id.let { musicId ->
+            state.closestItemToPosition(position)?.id?.let { musicId ->
                 database.musicDao().getRemoteKey(musicId)
             }
         }
