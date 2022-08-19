@@ -6,7 +6,12 @@ import androidx.lifecycle.*
 import com.lis.player_java.data.model.Item
 import com.lis.player_java.data.model.VkMusic
 import com.lis.player_java.data.repository.MusicRepository
+import com.lis.player_java.data.room.model.MusicDB
 import com.lis.player_java.tool.LoopingState
+import kotlinx.coroutines.android.HandlerDispatcher
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.take
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -20,56 +25,25 @@ class PlaybackViewModel(
     private val mediaPlayer = MediaPlayer()
     private val myHandler = Handler()
     private var currentSong = 0
-    val successGetMusic = MutableLiveData<Boolean>()
-    private val position = MutableLiveData<Double>()
-    fun getPosition(): LiveData<Double> {
-        return position
-    }
+    val position = MutableLiveData<Double>()
 
-    private val duration = MutableLiveData<Double>()
+    val duration = MutableLiveData<Double>()
 
-    @JvmField
-    var downloadPosition = MutableLiveData<Int>()
-    fun getDownloadPosition(): LiveData<Int> {
-        return downloadPosition
-    }
+    val downloadPosition = MutableLiveData<Int>()
 
-    fun getDuration(): LiveData<Double> {
-        return duration
-    }
+    val isPlaying = MutableLiveData<Boolean>()
 
-    private val isPlaying = MutableLiveData<Boolean>()
-    fun isPlaying(): LiveData<Boolean> {
-        return isPlaying
-    }
-
-    private val loopingState = MutableLiveData<LoopingState>()
-    fun getLoopingState(): LiveData<LoopingState> {
-        return loopingState
-    }
+    val loopingState = MutableLiveData<LoopingState>()
 
     fun setLoopingState(loopingState: LoopingState) {
         this.loopingState.value = loopingState
         mediaPlayer.isLooping = loopingState === LoopingState.SingleLoop
     }
 
-    private val musicInfo = MutableLiveData<Item>()
-    fun getMusicInfo(): LiveData<Item> {
-        return musicInfo
-    }
+    val musicInfo = MutableLiveData<Item>()
 
-    private val musicList = MutableLiveData<VkMusic?>()
-    private fun getMusicList(): List<Item> {
-        return musicList.value!!.response.items
-    }
-
-    private fun setMusicList(value: VkMusic?) {
-        musicList.value = value
-        musicInfo.value = value!!.response.items[0]
-    }
-
-    private fun setupMediaPlayer(currentSong: Int) {
-        val song: String = getMusicList()[currentSong].url
+    private suspend fun setupMediaPlayer(currentSong: Int) {
+        val song = listMusicListViewModel.pagingMusicList.first()
         musicInfo.value = getMusicList()[currentSong]
         mediaPlayer.reset()
         try {
@@ -89,26 +63,6 @@ class PlaybackViewModel(
         }
     }
 
-    private val musicListFromRepo: Unit
-        private get() {
-            repository.getMusicList(10, 0).enqueue(object : Callback<VkMusic?> {
-                override fun onResponse(call: Call<VkMusic?>, response: Response<VkMusic?>) {
-                    if (response.isSuccessful
-                        && response.body() != null && response.body()!!.response != null
-                    ) {
-                        setMusicList(response.body())
-                        setupMediaPlayer(0)
-                        successGetMusic.setValue(true)
-                    } else {
-                        successGetMusic.setValue(false)
-                    }
-                }
-
-                override fun onFailure(call: Call<VkMusic?>, t: Throwable) {
-                    successGetMusic.setValue(false)
-                }
-            })
-        }
     private var needToPlay = true
     fun start() {
         if (!needToPlay) {
@@ -132,7 +86,7 @@ class PlaybackViewModel(
         position.postValue(mediaPlayer.currentPosition.toDouble())
     }
 
-    fun nextSong() {
+    suspend fun nextSong() {
         val playListLength = getMusicList().size
         if (currentSong < playListLength - 1) {
             currentSong++
@@ -145,7 +99,7 @@ class PlaybackViewModel(
         }
     }
 
-    fun prevSong() {
+    suspend fun prevSong() {
         if (mediaPlayer.currentPosition > 2000) {
             seekTo(0)
         } else {
