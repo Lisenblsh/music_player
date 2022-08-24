@@ -9,7 +9,7 @@ import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.player_java.R
-import com.lis.player_java.data.room.model.MusicDB
+import com.lis.player_java.data.room.MusicDB
 import com.lis.player_java.tool.ImageFun
 
 class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(MUSIC_COMPARISON) {

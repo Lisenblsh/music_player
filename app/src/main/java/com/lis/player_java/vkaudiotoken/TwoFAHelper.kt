@@ -1,7 +1,5 @@
 package com.lis.player_java.vkaudiotoken
 
-import com.lis.player_java.vkaudiotoken.TokenException
-import com.lis.player_java.vkaudiotoken.TokenExceptionType
 import com.lis.player_java.vkaudiotoken.network.RetrofitService
 import com.lis.player_java.vkaudiotoken.network.VK_OFFICIAL
 

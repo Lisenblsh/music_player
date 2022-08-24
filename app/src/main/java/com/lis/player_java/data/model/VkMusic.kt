@@ -1,9 +1,6 @@
 package com.lis.player_java.data.model
 
 import com.google.gson.annotations.SerializedName
-import com.lis.player_java.data.model.Ads
-import com.lis.player_java.data.model.Album
-import com.lis.player_java.data.model.Thumb
 
 data class VkMusic (
     @SerializedName("response")

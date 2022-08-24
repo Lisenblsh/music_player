@@ -1,148 +1,162 @@
 package com.lis.player_java.viewModel
 
-import android.media.MediaPlayer
+import android.content.Context
+import android.media.session.PlaybackState
 import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.lifecycle.*
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.Player
 import com.lis.player_java.data.model.Item
-import com.lis.player_java.data.model.VkMusic
 import com.lis.player_java.data.repository.MusicRepository
-import com.lis.player_java.data.room.model.MusicDB
-import com.lis.player_java.tool.LoopingState
-import kotlinx.coroutines.android.HandlerDispatcher
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.IOException
-import java.util.*
+import com.lis.player_java.data.room.AlbumForMusic
+import com.lis.player_java.data.room.GenreType
+import com.lis.player_java.data.room.MusicDB
+import com.lis.player_java.tool.DiffAudioData
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class PlaybackViewModel(
     private val repository: MusicRepository,
-    private val listMusicListViewModel: MusicListViewModel
+    private val context: Context
 ) : ViewModel() {
-    private val mediaPlayer = MediaPlayer()
-    private val myHandler = Handler()
+    private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context)
+        .build()
+    private val myHandler = Handler(Looper.getMainLooper())
     private var currentSong = 0
-    val position = MutableLiveData<Double>()
+    val position = MutableLiveData<Long>()
 
-    val duration = MutableLiveData<Double>()
+    val duration = MutableLiveData<Long>()
 
-    val downloadPosition = MutableLiveData<Int>()
+    val downloadPosition = MutableLiveData<Long>()
 
     val isPlaying = MutableLiveData<Boolean>()
 
-    val loopingState = MutableLiveData<LoopingState>()
+    val repeatMode = MutableLiveData<Int>()
+    val count = MutableLiveData<Int>()
 
-    fun setLoopingState(loopingState: LoopingState) {
-        this.loopingState.value = loopingState
-        mediaPlayer.isLooping = loopingState === LoopingState.SingleLoop
+    fun setLoopingState(repeatMode: Int) {
+        exoPlayer.repeatMode = when (repeatMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_OFF
+            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ALL
+            else -> return
+        }
     }
+
+    private lateinit var audiosList: List<MusicDB>
 
     val musicInfo = MutableLiveData<Item>()
 
-    private suspend fun setupMediaPlayer(currentSong: Int) {
-        val song = listMusicListViewModel.pagingMusicList.first()
-        musicInfo.value = getMusicList()[currentSong]
-        mediaPlayer.reset()
-        try {
-            mediaPlayer.setDataSource(song)
-            position.value = mediaPlayer.currentPosition.toDouble()
-            downloadPosition.value = 0
-            var temp: Item
-            val _duration =
-                if (musicInfo.value.also { temp = it!! } != null) temp.duration * 1000 else 0
-            duration.value = _duration.toDouble()
-            mediaPlayer.prepareAsync()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            successGetMusic.setValue(false)
-        } catch (e: IllegalStateException) {
-            successGetMusic.setValue(false)
-        }
+    private fun setupMediaPlayer(currentSong: Int) {
+        position.value = exoPlayer.currentPosition
+        duration.value = exoPlayer.duration
     }
 
-    private var needToPlay = true
-    fun start() {
-        if (!needToPlay) {
-            mediaPlayer.start()
-        } else {
-            needToPlay = false
-        }
-        isPlaying.postValue(mediaPlayer.isPlaying)
+    fun play() {
+        exoPlayer.play()
+        isPlaying.value = exoPlayer.isPlaying
+        Log.e("visPlaying", isPlaying.value.toString())
+        Log.e("visPlaying1", exoPlayer.isPlaying.toString())
+
         myHandler.postDelayed(updateSongTime, 100)
     }
 
     fun pause() {
-        needToPlay = true
-        mediaPlayer.pause()
-        isPlaying.postValue(mediaPlayer.isPlaying)
+        exoPlayer.pause()
+        isPlaying.value = exoPlayer.isPlaying
         myHandler.removeCallbacks(updateSongTime)
+        Log.e("visPlaying", isPlaying.value.toString())
+        Log.e("visPlaying1", exoPlayer.isPlaying.toString())
     }
 
-    fun seekTo(progress: Int) {
-        mediaPlayer.seekTo(progress)
-        position.postValue(mediaPlayer.currentPosition.toDouble())
+    fun seekTo(progress: Long) {
+        exoPlayer.seekTo(progress)
+        position.postValue(exoPlayer.currentPosition)
     }
 
-    suspend fun nextSong() {
-        val playListLength = getMusicList().size
-        if (currentSong < playListLength - 1) {
-            currentSong++
-            setupMediaPlayer(currentSong)
-        } else if (currentSong == playListLength - 1 &&
-            getLoopingState().value === LoopingState.PlaylistLoop
-        ) {
-            currentSong = 0
-            setupMediaPlayer(currentSong)
-        }
-    }
-
-    suspend fun prevSong() {
-        if (mediaPlayer.currentPosition > 2000) {
-            seekTo(0)
-        } else {
-            if (currentSong > 0) {
-                currentSong--
-                setupMediaPlayer(currentSong)
+    fun nextSong() {
+        exoPlayer.seekToNextMediaItem()
+        Handler().postDelayed({
+            viewModelScope.launch {
+                audiosList = getAudios(4) ?: emptyList()
+                DiffAudioData(coroutineContext).update(exoPlayer,audiosList)
+                count.value = exoPlayer.mediaItemCount
             }
-        }
+        },1000)
+
+    }
+
+    fun prevSong() {
+        exoPlayer.seekToPrevious()
+
     }
 
     private val updateSongTime: Runnable = object : Runnable {
         override fun run() {
-            position.postValue(mediaPlayer.currentPosition.toDouble())
+            position.value = exoPlayer.currentPosition
+            downloadPosition.value = exoPlayer.bufferedPosition
             myHandler.postDelayed(this, 100)
         }
     }
 
     init {
-        duration.value = 0.0
-        successGetMusic.value = true
-        mediaPlayer.setOnPreparedListener { mediaPlayer: MediaPlayer ->
-            start()
-            if (getDuration().value?.toInt() == 0) {
-                duration.value = mediaPlayer.duration.toDouble()
+        downloadPosition.value = 0
+        duration.value = 0
+        position.value = 0
+        isPlaying.value = false
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                if (playbackState == ExoPlayer.STATE_READY) {
+                    duration.value = exoPlayer.duration
+                }
+                if (playbackState == PlaybackState.STATE_FAST_FORWARDING) {
+                    duration.value = exoPlayer.duration
+                }
             }
-        }
-        mediaPlayer.setOnCompletionListener { mediaPlayer: MediaPlayer? ->
-            if (getLoopingState().value !== LoopingState.SingleLoop) {
-                nextSong()
-            } else {
-                seekTo(0)
+
+        })
+        viewModelScope.launch {
+            audiosList = getAudios(2) ?: emptyList()
+            val playList = audiosList.map {
+                MediaItem.fromUri(it.url)
             }
+            exoPlayer.setMediaItems(playList)
+
+            exoPlayer.prepare()
+            count.value = exoPlayer.mediaItemCount
         }
-        mediaPlayer.setOnBufferingUpdateListener { mediaPlayer: MediaPlayer?, percent: Int ->
-            downloadPosition.setValue(
-                percent
+    }
+
+    private suspend fun getAudios(count: Int): List<MusicDB>? {
+        return repository.getMusicList(count, 0).body()?.response?.items?.map {
+            MusicDB(
+                it.id,
+                it.ownerId,
+                "${it.id}_${it.ownerId}",
+                it.artist,
+                it.title,
+                it.url,
+                it.album?.thumb?.photo600 ?: "",
+                it.album?.thumb?.photo1200 ?: "",
+                it.duration,
+                it.isExplicit,
+                AlbumForMusic(it.id, it.ownerId, it.accessKey),
+                it.lyricsId ?: 0,
+                GenreType.getGenreById(it.genreId?.toInt() ?: 0)
             )
         }
-        musicListFromRepo
     }
+
+
 }
 
-class PlaybackViewModelFactory(var musicRepository: MusicRepository) :
+class PlaybackViewModelFactory(
+    private val musicRepository: MusicRepository,
+    private val context: Context
+) :
     AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel?> create(
         key: String,
@@ -150,7 +164,7 @@ class PlaybackViewModelFactory(var musicRepository: MusicRepository) :
         handle: SavedStateHandle
     ): T {
         if (modelClass.isAssignableFrom(PlaybackViewModel::class.java)) {
-            return PlaybackViewModel(musicRepository) as T
+            return PlaybackViewModel(musicRepository, context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

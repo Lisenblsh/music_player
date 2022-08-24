@@ -16,12 +16,12 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.lis.player_java.tool.ImageFun;
+import com.google.android.exoplayer2.Player;
 import com.lis.player_java.R;
 import com.lis.player_java.data.model.Thumb;
 import com.lis.player_java.databinding.FragmentPlayerBinding;
 import com.lis.player_java.di.Injection;
-import com.lis.player_java.tool.LoopingState;
+import com.lis.player_java.tool.ImageFun;
 import com.lis.player_java.viewModel.PlaybackViewModel;
 
 import java.text.MessageFormat;
@@ -49,7 +49,11 @@ public class PlayerFragment extends Fragment {
 
 
     private void bindElement() {
-        onStartNewSound();
+        viewModel.getDuration().observe(getViewLifecycleOwner(), songDuration -> {
+            Toast.makeText(requireContext(), ""+songDuration, Toast.LENGTH_SHORT).show();
+            binding.songProgress.setMax(songDuration.intValue());
+            binding.songDuration.setText(getStringSongDuration(songDuration));
+        });
 
         ImageFun imageFun = new ImageFun();
 
@@ -65,10 +69,8 @@ public class PlayerFragment extends Fragment {
 
                 if(thumb != null){
                     String image = thumb.getPhoto600();
-                    if(image != null){
-                        imageFun.setImageToBackground(binding.backgroundImage, image);
-                        imageFun.setImage(binding.songImage, image);
-                    }
+                    imageFun.setImageToBackground(binding.backgroundImage, image);
+                    imageFun.setImage(binding.songImage, image);
                 } else {
                     //для установки дефолтной картинки
                     imageFun.setImageToBackground(binding.backgroundImage, R.drawable.song_image);
@@ -85,16 +87,16 @@ public class PlayerFragment extends Fragment {
             binding.songProgress.setProgress(position.intValue());
         });//установка текущей позиции
 
-        viewModel.downloadPosition.observe(getViewLifecycleOwner(), downloadPosition -> {
+        viewModel.getDownloadPosition().observe(getViewLifecycleOwner(), downloadPosition -> {
             int progress;
             if(downloadPosition != 0){
-                progress = binding.songProgress.getMax() * downloadPosition / 100;
+                progress = (int) (binding.songProgress.getMax() * downloadPosition / 100);
             } else {
                 progress = 0;
             }
             if(binding.songProgress.getSecondaryProgress() != progress){
                 binding.songProgress.setSecondaryProgress(progress);
-                Log.e("download", ""+progress+"|"+downloadPosition);
+                //Log.e("download", ""+progress+"|"+downloadPosition);
             }
 
         });
@@ -106,25 +108,23 @@ public class PlayerFragment extends Fragment {
 
         });//установка иконки play\pause кнопки
 
-        viewModel.getLoopingState().observe(getViewLifecycleOwner(), loopingState -> {
-            switch (loopingState) {
-                case NotLoop:
+        viewModel.getRepeatMode().observe(getViewLifecycleOwner(), repeatMode -> {
+            switch (repeatMode) {
+                case Player.REPEAT_MODE_OFF:
                     imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_plus_one_24);
                     break;
-                case SingleLoop:
+                case Player.REPEAT_MODE_ONE:
                     imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_loop_24);
                     break;
-                case PlaylistLoop:
+                case Player.REPEAT_MODE_ALL:
                     imageFun.setImage(binding.buttonLoop, R.drawable.ic_baseline_low_priority_24);
                     break;
             }
         });// установка иконки зацикливания
 
-        viewModel.getSuccessGetMusic().observe(getViewLifecycleOwner(), isSuccessGetMusic-> {
-            if(!isSuccessGetMusic){
-                Toast.makeText(requireContext(), "Произошла ошибка", Toast.LENGTH_SHORT).show();
-            }
-        });//для обработки ошибок видимо
+        viewModel.getCount().observe(getViewLifecycleOwner(), count -> {
+            Toast.makeText(requireContext(), ""+ count, Toast.LENGTH_SHORT).show();
+        });
 
         binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener());
 
@@ -135,38 +135,34 @@ public class PlayerFragment extends Fragment {
 
         binding.buttonLoop.setOnClickListener(this::loopClickListener);
     }
-    private LoopingState loopingState = LoopingState.NotLoop;
+    private int repeatMode = Player.REPEAT_MODE_OFF;
 
     private void loopClickListener(View v) {
-        switch (loopingState) {
-            case NotLoop:
-                loopingState = LoopingState.SingleLoop;
+        switch (repeatMode) {
+            case Player.REPEAT_MODE_OFF:
+                repeatMode = Player.REPEAT_MODE_ONE;
                 break;
-            case SingleLoop:
-                loopingState = LoopingState.PlaylistLoop;
+            case Player.REPEAT_MODE_ONE:
+                repeatMode = Player.REPEAT_MODE_ALL;
                 break;
-            case PlaylistLoop:
-                loopingState = LoopingState.NotLoop;
+            case Player.REPEAT_MODE_ALL:
+                repeatMode = Player.REPEAT_MODE_OFF;
                 break;
         }
-        viewModel.setLoopingState(loopingState);
+        viewModel.setLoopingState(repeatMode);
     }
 
-    private void onStartNewSound() {
-        viewModel.getDuration().observe(getViewLifecycleOwner(), songDuration -> {
-            binding.songProgress.setMax(songDuration.intValue());
-            binding.songDuration.setText(getStringSongDuration(songDuration.longValue()));
-        });
-
-    }
 
     private void startClickListener() {
         boolean isPlaying = Boolean.TRUE.equals(viewModel.isPlaying().getValue());
+        Log.e("isPlaying", ""+isPlaying);
         if (isPlaying) {
             viewModel.pause();
         } else {
-            viewModel.start();
+            viewModel.play();
         }
+        isPlaying = Boolean.TRUE.equals(viewModel.isPlaying().getValue());
+        Log.e("isPlaying1", ""+isPlaying);
     }
 
     private void nextClickListener() {
@@ -234,6 +230,6 @@ public class PlayerFragment extends Fragment {
         String userAgent = getPreference().getString(getResources().getString(R.string.user_agent), "");
         String token = getPreference().getString(getResources().getString(R.string.token_key),"");
         //Добавть проерку userAgent ибо малоли что может произойти перебздеть стоит.
-        return Injection.INSTANCE.provideViewModelFactory(userAgent,token);
+        return Injection.INSTANCE.provideViewModelFactory(userAgent,token,requireContext());
     }
 }

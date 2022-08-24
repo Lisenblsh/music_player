@@ -5,7 +5,6 @@ import com.lis.player_java.data.network.Filters
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import retrofit2.Call
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -83,7 +82,7 @@ interface RetrofitService {
         @Query("offset") offset: Int?,
         @Query("owner_id") ownerId: Long?,
         @Query("album_id") albumId: Long?,
-        @Query("access_key") accessKey: String,
+        @Query("access_key") accessKey: String?,
     ): Response<VkMusic>
 
     //audio.getAlbumsByArtist
@@ -235,7 +234,7 @@ interface RetrofitService {
     companion object {
         private const val BASE_URL = "https://api.vk.com/method/"
 
-        fun create(userAgent: String): RetrofitService? {
+        fun create(userAgent: String): RetrofitService {
             val okHttpClient = OkHttpClient().newBuilder()
                 .addInterceptor(Interceptor { chain: Interceptor.Chain ->
                     val origin = chain.request()

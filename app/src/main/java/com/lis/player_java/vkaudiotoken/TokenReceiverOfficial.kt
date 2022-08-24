@@ -1,13 +1,12 @@
 package com.lis.player_java.vkaudiotoken
 
 import com.google.gson.Gson
-import retrofit2.Response
 import com.lis.player_java.vkaudiotoken.network.RetrofitService
 import com.lis.player_java.vkaudiotoken.network.VK_OFFICIAL
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import retrofit2.Response
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random

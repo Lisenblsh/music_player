@@ -1,19 +1,19 @@
 package com.lis.player_java.ui
 
 import android.content.Context
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.os.Bundle
-import com.lis.player_java.vkaudiotoken.TokenReceiverOfficial
-import android.widget.Toast
-import com.lis.player_java.R
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
-import com.lis.player_java.tool.ImageFun
+import com.lis.player_java.R
 import com.lis.player_java.databinding.FragmentAuthorizationBinding
+import com.lis.player_java.tool.ImageFun
 import com.lis.player_java.vkaudiotoken.TokenException
 import com.lis.player_java.vkaudiotoken.TokenExceptionType
+import com.lis.player_java.vkaudiotoken.TokenReceiverOfficial
 import com.lis.player_java.vkaudiotoken.network.VK_OFFICIAL
 import kotlinx.coroutines.launch
 

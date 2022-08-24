@@ -1,11 +1,7 @@
 package com.lis.player_java.data.room
 
-import com.lis.player_java.data.room.model.AlbumDB
-import com.lis.player_java.data.room.model.MusicDB
 import androidx.paging.PagingSource
 import androidx.room.*
-import com.lis.player_java.data.room.model.ArtistDB
-import com.lis.player_java.data.room.model.RemoteKeys
 
 @Dao
 interface MusicDao {

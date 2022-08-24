@@ -1,16 +1,13 @@
 package com.lis.player_java.data.repository
 
-import com.lis.player_java.data.model.VkMusic
 import com.lis.player_java.data.network.retrofit.RetrofitService
-import retrofit2.Response
 
 class MusicRepository(private val service: RetrofitService, private val token: String) {
-    suspend fun getMusicList(count: Int, offset: Int): Response<VkMusic> {
-        return service.getAudio(
-            token,
-            count,
-            offset
-        )
-    }
-
+    suspend fun getMusicList(
+        count: Int,
+        offset: Int,
+        ownerId: Long? = null,
+        albumId: Long? = null,
+        accessKey: String? = null
+    ) = service.getAudio(token, count, offset, ownerId, albumId, accessKey)
 }

@@ -2,14 +2,8 @@ package com.lis.player_java.data.room
 
 import android.content.Context
 import androidx.room.Database
-import com.lis.player_java.data.room.model.MusicDB
-import com.lis.player_java.data.room.model.AlbumDB
-import com.lis.player_java.data.room.model.ArtistDB
-import com.lis.player_java.data.room.model.RemoteKeys
-import androidx.room.RoomDatabase
-import com.lis.player_java.data.room.MusicDao
-import com.lis.player_java.data.room.MusicDatabase
 import androidx.room.Room
+import androidx.room.RoomDatabase
 
 @Database(
     entities = [MusicDB::class, AlbumDB::class, ArtistDB::class, RemoteKeys::class],

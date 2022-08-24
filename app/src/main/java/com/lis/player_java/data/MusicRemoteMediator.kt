@@ -1,19 +1,14 @@
 package com.lis.player_java.data
 
 import androidx.paging.ExperimentalPagingApi
-import androidx.paging.RemoteMediator
-import com.lis.player_java.data.room.model.MusicDB
 import androidx.paging.LoadType
 import androidx.paging.PagingState
+import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
-import com.lis.player_java.data.model.Item
 import com.lis.player_java.data.repository.MusicRepository
-import com.lis.player_java.data.room.MusicDatabase
-import com.lis.player_java.data.room.model.AlbumForMusic
-import com.lis.player_java.data.room.model.GenreType
-import com.lis.player_java.data.room.model.RemoteKeys
+import com.lis.player_java.data.room.*
 import okio.IOException
-import retrofit2.*
+import retrofit2.HttpException
 
 private const val STARTING_PAGE_INDEX = 1
 
@@ -36,7 +31,7 @@ class MusicRemoteMediator(
         val page = when (loadType) {
             LoadType.REFRESH -> {
                 val remoteKeys = getRemoteKeysClosestToCurrentPosition(state)
-                remoteKeys?.nextKey?.minus(1)?: STARTING_PAGE_INDEX
+                remoteKeys?.nextKey?.minus(1) ?: STARTING_PAGE_INDEX
             }
             LoadType.APPEND -> {
                 val remoteKeys = getRemoteKeysForLastItem(state)
@@ -65,8 +60,8 @@ class MusicRemoteMediator(
                         database.musicDao().getMusicList().takeLast(pageSize).map {
                             RemoteKeys(
                                 it.id,
-                                prevKey?:0,
-                                nextKey?:0
+                                prevKey ?: 0,
+                                nextKey ?: 0
                             )
                         }
                     database.musicDao().insertAllKeys(keys)
@@ -82,26 +77,30 @@ class MusicRemoteMediator(
 
     private suspend fun getMusicList(
         count: Int,
-        offset: Int
+        offset: Int,
+        ownerId: Long? = null,
+        albumId: Long? = null,
+        accessKey: String? = null
     ): Pair<List<MusicDB>?, Boolean> {
         val musicList =
-            repository.getMusicList(count, offset).body()?.response?.items?.map {
-                MusicDB(
-                    it.id,
-                    it.ownerId,
-                    "${it.id}_${it.ownerId}",
-                    it.artist,
-                    it.title,
-                    it.url,
-                    it.album?.thumb?.photo600?:"",
-                    it.album?.thumb?.photo1200?:"",
-                    it.duration,
-                    it.isExplicit,
-                    AlbumForMusic(it.id, it.ownerId, it.accessKey),
-                    it.lyricsId?:0,
-                    GenreType.getGenreById(it.genreId?.toInt()?: 0)
-                )
-            }
+            repository.getMusicList(count, offset, ownerId, albumId, accessKey)
+                .body()?.response?.items?.map {
+                    MusicDB(
+                        it.id,
+                        it.ownerId,
+                        "${it.id}_${it.ownerId}",
+                        it.artist,
+                        it.title,
+                        it.url,
+                        it.album?.thumb?.photo600 ?: "",
+                        it.album?.thumb?.photo1200 ?: "",
+                        it.duration,
+                        it.isExplicit,
+                        AlbumForMusic(it.id, it.ownerId, it.accessKey),
+                        it.lyricsId ?: 0,
+                        GenreType.getGenreById(it.genreId?.toInt() ?: 0)
+                    )
+                }
         val endOfPaginationReached = musicList.isNullOrEmpty()
         return Pair(musicList, endOfPaginationReached)
     }
@@ -115,7 +114,7 @@ class MusicRemoteMediator(
     }
 
     private suspend fun getRemoteKeysForLastItem(state: PagingState<Int, MusicDB>): RemoteKeys? {
-        return state.pages.lastOrNull { it.data.isNotEmpty()}?.data?.lastOrNull()?.let { repo ->
+        return state.pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()?.let { repo ->
             database.musicDao().getRemoteKey(repo.id)
         }
     }

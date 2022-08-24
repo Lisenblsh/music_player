@@ -1,7 +1,6 @@
 package com.lis.player_java.viewModel
 
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.paging.ExperimentalPagingApi
@@ -9,11 +8,9 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.lis.player_java.data.MusicRemoteMediator
-import com.lis.player_java.data.model.Item
-import com.lis.player_java.data.model.VkMusic
 import com.lis.player_java.data.repository.MusicRepository
+import com.lis.player_java.data.room.MusicDB
 import com.lis.player_java.data.room.MusicDatabase
-import com.lis.player_java.data.room.model.MusicDB
 import kotlinx.coroutines.flow.Flow
 
 class MusicListViewModel(
