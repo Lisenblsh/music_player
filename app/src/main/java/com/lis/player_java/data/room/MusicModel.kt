@@ -13,7 +13,7 @@ data class MusicDB(
     val artist: String,
     val title: String,
     val url: String,
-    val photo600: String,
+    val photo300: String,
     val photo1200: String,
     val duration: Long,
     val isExplicit: Boolean,

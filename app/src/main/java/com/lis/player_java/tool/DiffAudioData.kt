@@ -10,9 +10,9 @@ import com.lis.player_java.data.room.MusicDB
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class DiffAudioData(private val context: CoroutineContext) : AudioDataUpdaterDiff {
+class DiffAudioData(private val context: CoroutineContext, private val player: ExoPlayer) : AudioDataUpdaterDiff {
 
-    override suspend fun update(player: ExoPlayer, incoming: List<MusicDB>) {
+    override suspend fun update(incoming: List<MusicDB>) {
         val oldData = player.currentMediaItems
         val newData = incoming.toMediaItems()
 
@@ -38,6 +38,10 @@ class DiffAudioData(private val context: CoroutineContext) : AudioDataUpdaterDif
         }
     }
 
+    override suspend fun add(incoming: List<MusicDB>) {
+        player.addMediaItems(incoming.toMediaItems())
+    }
+
     private fun AbstractDelta<MediaItem>.delete(player: ExoPlayer) {
         player.removeMediaItems(target.position, target.position + source.lines.size)
     }
@@ -48,11 +52,13 @@ class DiffAudioData(private val context: CoroutineContext) : AudioDataUpdaterDif
 
     private fun List<MusicDB>.toMediaItems(): List<MediaItem> =
         map { data ->
-            MediaItem.fromUri(data.url)
+            MediaItem.Builder().setUri(data.url).setMediaId(data.id.toString()).build()
         }
 
-    private val ExoPlayer.currentMediaItems: List<MediaItem>
-        get() {
-            return List(mediaItemCount, ::getMediaItemAt)
-        }
+
 }
+
+val ExoPlayer.currentMediaItems: List<MediaItem>
+    get() {
+        return List(mediaItemCount, ::getMediaItemAt)
+    }

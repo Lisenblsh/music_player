@@ -92,7 +92,7 @@ class MusicRemoteMediator(
                         it.artist,
                         it.title,
                         it.url,
-                        it.album?.thumb?.photo600 ?: "",
+                        it.album?.thumb?.photo300 ?: "",
                         it.album?.thumb?.photo1200 ?: "",
                         it.duration,
                         it.isExplicit,

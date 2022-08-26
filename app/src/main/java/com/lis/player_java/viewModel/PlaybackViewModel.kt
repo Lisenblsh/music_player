@@ -15,16 +15,20 @@ import com.lis.player_java.data.room.AlbumForMusic
 import com.lis.player_java.data.room.GenreType
 import com.lis.player_java.data.room.MusicDB
 import com.lis.player_java.tool.DiffAudioData
+import com.lis.player_java.tool.currentMediaItems
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.coroutineContext
 
 class PlaybackViewModel(
     private val repository: MusicRepository,
     private val context: Context
 ) : ViewModel() {
-    private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context)
-        .build()
+    private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context).build()
     private val myHandler = Handler(Looper.getMainLooper())
+    private val differ = DiffAudioData(viewModelScope.coroutineContext,exoPlayer)
     private var currentSong = 0
     val position = MutableLiveData<Long>()
 
@@ -46,9 +50,9 @@ class PlaybackViewModel(
         }
     }
 
-    private lateinit var audiosList: List<MusicDB>
+    private lateinit var audiosList: ArrayList<MusicDB>
 
-    val musicInfo = MutableLiveData<Item>()
+    val musicInfo = MutableLiveData<MusicDB>()
 
     private fun setupMediaPlayer(currentSong: Int) {
         position.value = exoPlayer.currentPosition
@@ -58,8 +62,6 @@ class PlaybackViewModel(
     fun play() {
         exoPlayer.play()
         isPlaying.value = exoPlayer.isPlaying
-        Log.e("visPlaying", isPlaying.value.toString())
-        Log.e("visPlaying1", exoPlayer.isPlaying.toString())
 
         myHandler.postDelayed(updateSongTime, 100)
     }
@@ -68,8 +70,6 @@ class PlaybackViewModel(
         exoPlayer.pause()
         isPlaying.value = exoPlayer.isPlaying
         myHandler.removeCallbacks(updateSongTime)
-        Log.e("visPlaying", isPlaying.value.toString())
-        Log.e("visPlaying1", exoPlayer.isPlaying.toString())
     }
 
     fun seekTo(progress: Long) {
@@ -79,19 +79,11 @@ class PlaybackViewModel(
 
     fun nextSong() {
         exoPlayer.seekToNextMediaItem()
-        Handler().postDelayed({
-            viewModelScope.launch {
-                audiosList = getAudios(4) ?: emptyList()
-                DiffAudioData(coroutineContext).update(exoPlayer,audiosList)
-                count.value = exoPlayer.mediaItemCount
-            }
-        },1000)
 
     }
 
     fun prevSong() {
         exoPlayer.seekToPrevious()
-
     }
 
     private val updateSongTime: Runnable = object : Runnable {
@@ -109,29 +101,25 @@ class PlaybackViewModel(
         isPlaying.value = false
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                if (playbackState == ExoPlayer.STATE_READY) {
+                if (playbackState == ExoPlayer.STATE_READY || playbackState == PlaybackState.STATE_FAST_FORWARDING) {
                     duration.value = exoPlayer.duration
-                }
-                if (playbackState == PlaybackState.STATE_FAST_FORWARDING) {
-                    duration.value = exoPlayer.duration
+                    musicInfo.value = audiosList.find { it.id.toString() == exoPlayer.currentMediaItem?.mediaId }
+                    Log.e("musicInfo", musicInfo.value.toString())
                 }
             }
 
         })
         viewModelScope.launch {
-            audiosList = getAudios(2) ?: emptyList()
-            val playList = audiosList.map {
-                MediaItem.fromUri(it.url)
-            }
-            exoPlayer.setMediaItems(playList)
+            audiosList = (getAudios(4,0) ?: emptyList()) as ArrayList<MusicDB>
+            differ.add(audiosList)
 
             exoPlayer.prepare()
             count.value = exoPlayer.mediaItemCount
         }
     }
 
-    private suspend fun getAudios(count: Int): List<MusicDB>? {
-        return repository.getMusicList(count, 0).body()?.response?.items?.map {
+        private suspend fun getAudios(count: Int,offset: Int): List<MusicDB>? {
+        return repository.getMusicList(count, offset).body()?.response?.items?.map {
             MusicDB(
                 it.id,
                 it.ownerId,
