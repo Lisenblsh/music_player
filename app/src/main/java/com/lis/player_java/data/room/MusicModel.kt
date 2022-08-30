@@ -100,6 +100,6 @@ data class MusicArtists(
 @Entity
 data class RemoteKeys(
     @PrimaryKey val musicId: Long,
-    val prefKey: Int,
-    val nextKey: Int
+    val prefKey: Int?,
+    val nextKey: Int?
 )

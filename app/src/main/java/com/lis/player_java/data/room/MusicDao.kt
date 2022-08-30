@@ -26,7 +26,7 @@ interface MusicDao {
     fun insertMusic(musicDB: MusicDB)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMusicList(musics: List<MusicDB>)
+    suspend fun insertMusicList(musics: List<MusicDB>)
 
     @Query("SELECT * FROM MusicDB")
     @Transaction
@@ -66,11 +66,11 @@ interface MusicDao {
 
     //RemoteKeys
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAllKeys(remoteKeys: List<RemoteKeys>)
+    suspend fun insertAllKeys(remoteKeys: List<RemoteKeys>)
 
     @Transaction
     @Query("SELECT * FROM RemoteKeys WHERE musicId = :musicId")
-    fun getRemoteKey(musicId: Long): RemoteKeys?
+    suspend fun getRemoteKey(musicId: Long): RemoteKeys?
 
     @Transaction
     @Query("DELETE FROM ArtistDB")

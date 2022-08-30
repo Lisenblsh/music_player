@@ -2,7 +2,6 @@ package com.lis.player_java.ui
 
 import android.content.Context
 
-import com.lis.player_java.di.Injection.provideViewModelFactory
 import com.lis.player_java.viewModel.PlaybackViewModel
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -17,10 +16,10 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.SeekBar
 import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
-import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.lis.player_java.databinding.FragmentPlayerBinding
+import com.lis.player_java.di.Injection
 import java.text.MessageFormat
 import java.text.ParseException
 import java.util.*
@@ -38,7 +37,7 @@ class PlayerFragment : Fragment() {
         viewModel = ViewModelProvider(
             this, factory
         )[PlaybackViewModel::class.java]
-        bindElement()
+        binding.bindElement()
         return binding.root
     }
 
@@ -47,59 +46,53 @@ class PlayerFragment : Fragment() {
 
     }
 
-    private fun bindElement() {
+    private fun FragmentPlayerBinding.bindElement() {
         viewModel.duration.observe(viewLifecycleOwner) { songDuration: Long ->
             Toast.makeText(requireContext(), "" + songDuration, Toast.LENGTH_SHORT).show()
-            binding.songProgress.max = songDuration.toInt()
-            binding.songDuration.text = getStringSongDuration(songDuration)
+            songProgress.max = songDuration.toInt()
+            this.songDuration.text = getStringSongDuration(songDuration)
         }
         val imageFun = ImageFun()
         viewModel.musicInfo.observe(viewLifecycleOwner) { musicInfo: MusicDB? ->
             if (musicInfo != null) {
                 val image = musicInfo.photo1200
                 if (image.isNotEmpty()) {
-                    imageFun.setImage(binding.songImage, image)
-                    imageFun.setImageToBackground(binding.backgroundImage, image)
+                    imageFun.setImage(songImage, image)
+                    imageFun.setImageToBackground(backgroundImage, image)
                 } else {
-                    imageFun.setImage(binding.songImage, R.drawable.song_image)
-                    imageFun.setImageToBackground(binding.backgroundImage, R.drawable.song_image)
+                    imageFun.setImage(songImage, R.drawable.song_image)
+                    imageFun.setImageToBackground(backgroundImage, R.drawable.song_image)
                 }
-                binding.songName.text = musicInfo.title
-                binding.songName.isSelected = true
-                binding.songAuthor.text = musicInfo.artist
+                songName.text = musicInfo.title
+                songName.isSelected = true
+                songAuthor.text = musicInfo.artist
             }
         } //заполнение сведений о песне
         viewModel.position.observe(viewLifecycleOwner) { position: Long ->
-            binding.songPosition.text = getStringSongDuration(position)
-            binding.songProgress.progress = position.toInt()
+            songPosition.text = getStringSongDuration(position)
+            songProgress.progress = position.toInt()
         } //установка текущей позиции
         viewModel.downloadPosition.observe(viewLifecycleOwner) { downloadPosition: Long ->
-            val progress: Int = if (downloadPosition != 0L) {
-                (binding.songProgress.max * downloadPosition / 100).toInt()
-            } else {
-                0
-            }
-            if (binding.songProgress.secondaryProgress != progress) {
-                binding.songProgress.secondaryProgress = progress
-            }
+            songProgress.secondaryProgress = downloadPosition.toInt()
         }
         viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying: Boolean ->
             imageFun.setImage(
-                binding.buttonPlayPause,
+                buttonPlayPause,
                 if (isPlaying) R.drawable.ic_baseline_pause_24 else R.drawable.ic_baseline_play_arrow_24
             )
         } //установка иконки play\pause кнопки
-        viewModel.repeatMode.observe(viewLifecycleOwner) { repeatMode: Int? ->
+
+        viewModel.repeatMode.observe(viewLifecycleOwner) { repeatMode: Int ->
             when (repeatMode) {
                 Player.REPEAT_MODE_OFF -> imageFun.setImage(
-                    binding.buttonLoop, R.drawable.ic_baseline_plus_one_24
+                    buttonLoop, R.drawable.ic_baseline_plus_one_24
                 )
                 Player.REPEAT_MODE_ONE -> imageFun.setImage(
-                    binding.buttonLoop,
+                    buttonLoop,
                     R.drawable.ic_baseline_loop_24
                 )
                 Player.REPEAT_MODE_ALL -> imageFun.setImage(
-                    binding.buttonLoop,
+                    buttonLoop,
                     R.drawable.ic_baseline_low_priority_24
                 )
             }
@@ -112,11 +105,11 @@ class PlayerFragment : Fragment() {
             ).show()
             //TODO("delete this")
         }
-        binding.songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener())
-        binding.buttonPlayPause.setOnClickListener { startClickListener() }
-        binding.buttonNext.setOnClickListener { nextClickListener() }
-        binding.buttonPrevious.setOnClickListener { prevClickListener() }
-        binding.buttonLoop.setOnClickListener { loopClickListener() }
+        songProgress.setOnSeekBarChangeListener(seekBarSelectProgressListener())
+        buttonPlayPause.setOnClickListener { startClickListener() }
+        buttonNext.setOnClickListener { nextClickListener() }
+        buttonPrevious.setOnClickListener { prevClickListener() }
+        buttonLoop.setOnClickListener { loopClickListener() }
     }
 
     private var repeatMode = Player.REPEAT_MODE_OFF
@@ -126,7 +119,7 @@ class PlayerFragment : Fragment() {
             Player.REPEAT_MODE_ONE -> repeatMode = Player.REPEAT_MODE_ALL
             Player.REPEAT_MODE_ALL -> repeatMode = Player.REPEAT_MODE_OFF
         }
-        viewModel.setLoopingState(repeatMode)
+        viewModel.setRepeatMode(repeatMode)
     }
 
     private fun startClickListener() {
@@ -197,6 +190,6 @@ class PlayerFragment : Fragment() {
             val userAgent = preference.getString(resources.getString(R.string.user_agent), "")
             val token = preference.getString(resources.getString(R.string.token_key), "")
             //Добавть проерку userAgent ибо малоли что может произойти перебздеть стоит.
-            return provideViewModelFactory(userAgent!!, token!!, requireContext())
+            return Injection.provideViewModelFactory(userAgent!!, token!!, requireContext())
         }
 }

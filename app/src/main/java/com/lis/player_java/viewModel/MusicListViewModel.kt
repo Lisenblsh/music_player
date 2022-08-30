@@ -1,7 +1,5 @@
 package com.lis.player_java.viewModel
 
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
@@ -43,18 +41,4 @@ class MusicListViewModel(
         const val INITIAL_SIZE = 2
     }
 
-}
-
-class MusicListViewModelFactory(private val musicRepository: MusicRepository, private val database: MusicDatabase) :
-    AbstractSavedStateViewModelFactory() {
-    override fun <T : ViewModel?> create(
-        key: String,
-        modelClass: Class<T>,
-        handle: SavedStateHandle
-    ): T {
-        if (modelClass.isAssignableFrom(MusicListViewModel::class.java)) {
-            return MusicListViewModel(musicRepository, database) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
 }

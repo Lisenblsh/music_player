@@ -1,5 +1,6 @@
 package com.lis.player_java.data
 
+import android.util.Log
 import androidx.paging.ExperimentalPagingApi
 import androidx.paging.LoadType
 import androidx.paging.PagingState
@@ -7,6 +8,7 @@ import androidx.paging.RemoteMediator
 import androidx.room.withTransaction
 import com.lis.player_java.data.repository.MusicRepository
 import com.lis.player_java.data.room.*
+import com.lis.player_java.tool.convertToMusicDB
 import okio.IOException
 import retrofit2.HttpException
 
@@ -60,8 +62,8 @@ class MusicRemoteMediator(
                         database.musicDao().getMusicList().takeLast(pageSize).map {
                             RemoteKeys(
                                 it.id,
-                                prevKey ?: 0,
-                                nextKey ?: 0
+                                prevKey,
+                                nextKey
                             )
                         }
                     database.musicDao().insertAllKeys(keys)
@@ -84,24 +86,9 @@ class MusicRemoteMediator(
     ): Pair<List<MusicDB>?, Boolean> {
         val musicList =
             repository.getMusicList(count, offset, ownerId, albumId, accessKey)
-                .body()?.response?.items?.map {
-                    MusicDB(
-                        it.id,
-                        it.ownerId,
-                        "${it.id}_${it.ownerId}",
-                        it.artist,
-                        it.title,
-                        it.url,
-                        it.album?.thumb?.photo300 ?: "",
-                        it.album?.thumb?.photo1200 ?: "",
-                        it.duration,
-                        it.isExplicit,
-                        AlbumForMusic(it.id, it.ownerId, it.accessKey),
-                        it.lyricsId ?: 0,
-                        GenreType.getGenreById(it.genreId?.toInt() ?: 0)
-                    )
-                }
+                .body()?.response?.items?.convertToMusicDB()
         val endOfPaginationReached = musicList.isNullOrEmpty()
+        Log.e("remote take list", "")
         return Pair(musicList, endOfPaginationReached)
     }
 

@@ -14,8 +14,9 @@ import com.lis.player_java.data.repository.MusicRepository
 import com.lis.player_java.data.room.AlbumForMusic
 import com.lis.player_java.data.room.GenreType
 import com.lis.player_java.data.room.MusicDB
+import com.lis.player_java.data.room.MusicDatabase
 import com.lis.player_java.tool.DiffAudioData
-import com.lis.player_java.tool.currentMediaItems
+import com.lis.player_java.tool.convertToMusicDB
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -39,15 +40,12 @@ class PlaybackViewModel(
     val isPlaying = MutableLiveData<Boolean>()
 
     val repeatMode = MutableLiveData<Int>()
+
     val count = MutableLiveData<Int>()
 
-    fun setLoopingState(repeatMode: Int) {
-        exoPlayer.repeatMode = when (repeatMode) {
-            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_OFF
-            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_ONE
-            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ALL
-            else -> return
-        }
+    fun setRepeatMode(repeatMode: Int) {
+        exoPlayer.repeatMode = repeatMode
+        this.repeatMode.value = repeatMode
     }
 
     private lateinit var audiosList: ArrayList<MusicDB>
@@ -99,15 +97,14 @@ class PlaybackViewModel(
         duration.value = 0
         position.value = 0
         isPlaying.value = false
+        repeatMode.value = exoPlayer.repeatMode
         exoPlayer.addListener(object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_READY || playbackState == PlaybackState.STATE_FAST_FORWARDING) {
                     duration.value = exoPlayer.duration
                     musicInfo.value = audiosList.find { it.id.toString() == exoPlayer.currentMediaItem?.mediaId }
-                    Log.e("musicInfo", musicInfo.value.toString())
                 }
             }
-
         })
         viewModelScope.launch {
             audiosList = (getAudios(4,0) ?: emptyList()) as ArrayList<MusicDB>
@@ -119,31 +116,16 @@ class PlaybackViewModel(
     }
 
         private suspend fun getAudios(count: Int,offset: Int): List<MusicDB>? {
-        return repository.getMusicList(count, offset).body()?.response?.items?.map {
-            MusicDB(
-                it.id,
-                it.ownerId,
-                "${it.id}_${it.ownerId}",
-                it.artist,
-                it.title,
-                it.url,
-                it.album?.thumb?.photo600 ?: "",
-                it.album?.thumb?.photo1200 ?: "",
-                it.duration,
-                it.isExplicit,
-                AlbumForMusic(it.id, it.ownerId, it.accessKey),
-                it.lyricsId ?: 0,
-                GenreType.getGenreById(it.genreId?.toInt() ?: 0)
-            )
-        }
+        return repository.getMusicList(count, offset).body()?.response?.items?.convertToMusicDB()
     }
 
 
 }
 
-class PlaybackViewModelFactory(
+class ViewModelFactory(
     private val musicRepository: MusicRepository,
-    private val context: Context
+    private val context: Context,
+    private val database: MusicDatabase
 ) :
     AbstractSavedStateViewModelFactory() {
     override fun <T : ViewModel?> create(
@@ -153,6 +135,8 @@ class PlaybackViewModelFactory(
     ): T {
         if (modelClass.isAssignableFrom(PlaybackViewModel::class.java)) {
             return PlaybackViewModel(musicRepository, context) as T
+        } else if(modelClass.isAssignableFrom(MusicListViewModel::class.java)){
+            return MusicListViewModel(musicRepository, database) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

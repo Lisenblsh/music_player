@@ -50,7 +50,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
 
             title.text = music.title
             artistName.text = music.artist
-            ImageFun().setImage(image, music.url)
+            ImageFun().setImage(image, music.photo300.ifBlank { return })
         }
     }
 

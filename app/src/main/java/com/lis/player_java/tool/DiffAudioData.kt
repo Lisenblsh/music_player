@@ -7,6 +7,7 @@ import com.github.difflib.patch.Patch
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.lis.player_java.data.room.MusicDB
+import com.lis.player_java.tool.currentMediaItems
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
@@ -54,11 +55,4 @@ class DiffAudioData(private val context: CoroutineContext, private val player: E
         map { data ->
             MediaItem.Builder().setUri(data.url).setMediaId(data.id.toString()).build()
         }
-
-
 }
-
-val ExoPlayer.currentMediaItems: List<MediaItem>
-    get() {
-        return List(mediaItemCount, ::getMediaItemAt)
-    }

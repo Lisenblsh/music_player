@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModelProvider
 import com.lis.player_java.data.network.retrofit.RetrofitService
 import com.lis.player_java.data.repository.MusicRepository
-import com.lis.player_java.viewModel.PlaybackViewModelFactory
+import com.lis.player_java.data.room.MusicDatabase
+import com.lis.player_java.viewModel.ViewModelFactory
 
 object Injection {
     private fun provideRepository(userAgent: String, token: String): MusicRepository {
@@ -16,6 +17,10 @@ object Injection {
         token: String,
         context: Context
     ): ViewModelProvider.Factory {
-        return PlaybackViewModelFactory(provideRepository(userAgent, token), context)
+        return ViewModelFactory(
+            provideRepository(userAgent, token),
+            context,
+            MusicDatabase.getInstance(context)
+        )
     }
 }

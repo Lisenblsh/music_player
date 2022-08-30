@@ -2,6 +2,7 @@ package com.lis.player_java.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,7 +53,8 @@ class MainFragment : Fragment() {
             if (pref.getString(getString(R.string.token_key), "").isNullOrEmpty()) {
                 startFragment(AuthorizationFragment())
             } else {
-                startFragment(PlayerFragment())
+                Log.e("token true, start musicFragment", "starrt")
+                startFragment(MusicListFragment())
             }
         }
     }
@@ -65,6 +67,9 @@ class MainFragment : Fragment() {
                 }
                 is PlayerFragment -> {
                     MainFragmentDirections.actionMainFragmentToPlayerFragment()
+                }
+                is MusicListFragment-> {
+                    MainFragmentDirections.actionMainFragmentToMusicListFragment()
                 }
                 else -> {
                     return

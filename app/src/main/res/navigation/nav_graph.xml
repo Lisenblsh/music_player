@@ -16,6 +16,9 @@
         <action
             android:id="@+id/action_mainFragment_to_authorizationFragment"
             app:destination="@id/authorizationFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_musicListFragment"
+            app:destination="@id/musicListFragment" />
     </fragment>
     <fragment
         android:id="@+id/playerFragment"
@@ -26,4 +29,9 @@
         android:id="@+id/authorizationFragment"
         android:name="com.lis.player_java.ui.AuthorizationFragment"
         android:label="AuthorizationFragment" />
+    <fragment
+        android:id="@+id/musicListFragment"
+        android:name="com.lis.player_java.ui.MusicListFragment"
+        android:label="fragment_music_list"
+        tools:layout="@layout/fragment_music_list" />
 </navigation>
