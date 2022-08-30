@@ -8,6 +8,7 @@ import com.lis.player_java.data.room.MusicDB
 fun List<Item>.convertToMusicDB(): List<MusicDB> {
     return this.map {
         MusicDB(
+            0,
             it.id,
             it.ownerId,
             "${it.id}_${it.ownerId}",

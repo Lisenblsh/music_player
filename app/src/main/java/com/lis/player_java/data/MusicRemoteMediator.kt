@@ -47,19 +47,23 @@ class MusicRemoteMediator(
         }
 
         try {
-            val (musicList, endOfPaginationReached) = getMusicList(pageSize, pageSize * page)
+            val (musicList, endOfPaginationReached) = getMusicList(pageSize, pageSize * (page-1))
             database.withTransaction {
                 if (loadType == LoadType.REFRESH) {
                     database.musicDao().deleteMusic()
                     database.musicDao().clearRemoteKeysTable()
                 }
+
                 val prevKey = if (page == STARTING_PAGE_INDEX) null else page - 1
                 val nextKey = if (endOfPaginationReached) null else page + 1
 
                 if (musicList != null) {
+
                     database.musicDao().insertMusicList(musicList)
+
                     val keys =
                         database.musicDao().getMusicList().takeLast(pageSize).map {
+                            Log.e("remoteKey Ids", "ids: ${it.id}")
                             RemoteKeys(
                                 it.id,
                                 prevKey,

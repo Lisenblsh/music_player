@@ -7,8 +7,9 @@ import androidx.room.Relation
 
 @Entity
 data class MusicDB(
-    @PrimaryKey val id: Long,
-    val ownerId: Long, //ownerID+id
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val musicId: Long,
+    val ownerId: Long, //ownerID+musicid
     val contentIs: String,
     val artist: String,
     val title: String,
@@ -64,7 +65,8 @@ data class AlbumForMusic(val albumId: Long, val albumOwnerId: Long, val accessKe
 
 @Entity
 data class AlbumDB(
-    @PrimaryKey val id: Long,
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    val albumId: Long,
     val ownerId: Long,
     val accessKey: String,
     val title: String,
@@ -92,7 +94,7 @@ enum class ArtistType {
 data class MusicArtists(
     @Embedded
     val musicDB: MusicDB,
-    @Relation(parentColumn = "id", entityColumn = "musicId")
+    @Relation(parentColumn = "id", entityColumn = "id")
     val artists: List<ArtistDB>,
     val type: ArtistType
 )

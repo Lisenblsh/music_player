@@ -25,7 +25,7 @@ interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMusic(musicDB: MusicDB)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE, entity = MusicDB::class)
     suspend fun insertMusicList(musics: List<MusicDB>)
 
     @Query("SELECT * FROM MusicDB")

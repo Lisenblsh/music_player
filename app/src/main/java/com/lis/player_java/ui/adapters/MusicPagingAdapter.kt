@@ -39,7 +39,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
 
         fun bind(music: MusicDB?) {
             if(music == null){
-                TODO("Сюда можно вставить плэйс холдеры при загрузке")
+                //TODO("Сюда можно вставить плэйс холдеры при загрузке")
             } else {
                 showRepoData(music)
             }
