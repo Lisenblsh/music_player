@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.lis.player_java.R
@@ -26,6 +27,8 @@ class MusicListFragment : Fragment() {
     private lateinit var viewModel: MusicListViewModel
 
     private val musicAdapter = MusicPagingAdapter()
+
+    private val playerFragment = PlayerFragment().create()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,12 +48,31 @@ class MusicListFragment : Fragment() {
     }
 
     private fun FragmentMusicListBinding.bindElement(){
+        buttonOpenFragment.setOnClickListener {
+            val direction = MusicListFragmentDirections.actionMusicListFragmentToPlayerFragment()
+            NavHostFragment.findNavController(this@MusicListFragment).navigate(direction)
+        }
+        playerFragment.recyclerView.value = musicList
+        musicAdapter.setOnClickListener(object : MusicPagingAdapter.OnClickListener{
+            override fun onMenuClick(id: Long) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onItemClick(id: Long) {
+                startAudio(id)
+            }
+
+        })
         musicList.adapter = musicAdapter
         musicList.layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
 
         lifecycleScope.launch {
             viewModel.pagingMusicList.collectLatest(musicAdapter::submitData)
         }
+    }
+
+    private fun startAudio(id: Long) {
+        playerFragment.musicId.value = id
     }
 
     private val preference: SharedPreferences

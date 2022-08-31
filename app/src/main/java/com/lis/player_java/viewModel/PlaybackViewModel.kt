@@ -29,8 +29,8 @@ class PlaybackViewModel(
 ) : ViewModel() {
     private val exoPlayer: ExoPlayer = ExoPlayer.Builder(context).build()
     private val myHandler = Handler(Looper.getMainLooper())
-    private val differ = DiffAudioData(viewModelScope.coroutineContext,exoPlayer)
-    private var currentSong = 0
+    private val differ = DiffAudioData(viewModelScope.coroutineContext, exoPlayer)
+    val currentSong: MutableLiveData<Long> = MutableLiveData(0)
     val position = MutableLiveData<Long>()
 
     val duration = MutableLiveData<Long>()
@@ -102,20 +102,21 @@ class PlaybackViewModel(
             override fun onPlaybackStateChanged(playbackState: Int) {
                 if (playbackState == ExoPlayer.STATE_READY || playbackState == PlaybackState.STATE_FAST_FORWARDING) {
                     duration.value = exoPlayer.duration
-                    musicInfo.value = audiosList.find { it.id.toString() == exoPlayer.currentMediaItem?.mediaId }
+                    musicInfo.value =
+                        audiosList.find { it.id.toString() == exoPlayer.currentMediaItem?.mediaId }
                 }
             }
         })
         viewModelScope.launch {
-            audiosList = (getAudios(4,0) ?: emptyList()) as ArrayList<MusicDB>
+            audiosList = (getAudios(4, 0) ?: emptyList()) as ArrayList<MusicDB>
             differ.add(audiosList)
-
+            exoPlayer.seekTo(currentSong.value?.toInt()?:0, 0)
             exoPlayer.prepare()
             count.value = exoPlayer.mediaItemCount
         }
     }
 
-        private suspend fun getAudios(count: Int,offset: Int): List<MusicDB>? {
+    private suspend fun getAudios(count: Int, offset: Int): List<MusicDB>? {
         return repository.getMusicList(count, offset).body()?.response?.items?.convertToMusicDB()
     }
 
@@ -135,7 +136,7 @@ class ViewModelFactory(
     ): T {
         if (modelClass.isAssignableFrom(PlaybackViewModel::class.java)) {
             return PlaybackViewModel(musicRepository, context) as T
-        } else if(modelClass.isAssignableFrom(MusicListViewModel::class.java)){
+        } else if (modelClass.isAssignableFrom(MusicListViewModel::class.java)) {
             return MusicListViewModel(musicRepository, database) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")

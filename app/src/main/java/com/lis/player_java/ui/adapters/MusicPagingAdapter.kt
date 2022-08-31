@@ -24,6 +24,17 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
         return MusicViewHolder(view)
     }
 
+    interface OnClickListener{
+        fun onMenuClick(id: Long)
+        fun onItemClick(id: Long)
+    }
+
+    private lateinit var clickListener: OnClickListener
+
+    fun setOnClickListener(listener: OnClickListener){
+        this.clickListener = listener
+    }
+
     inner class MusicViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val image = itemView.findViewById<ImageView>(R.id.music_image)
@@ -41,6 +52,7 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
             if(music == null){
                 //TODO("Сюда можно вставить плэйс холдеры при загрузке")
             } else {
+
                 showRepoData(music)
             }
         }
@@ -50,7 +62,12 @@ class MusicPagingAdapter : PagingDataAdapter<MusicDB, RecyclerView.ViewHolder>(M
 
             title.text = music.title
             artistName.text = music.artist
-            ImageFun().setImage(image, music.photo300.ifBlank { return })
+            ImageFun().setImage(image, music.photo300.ifBlank { R.drawable.song_image })
+            itemView.setOnClickListener {
+                val id = music.id
+                clickListener.onItemClick(id)
+                clickListener.onMenuClick(id)
+            }
         }
     }
 

@@ -1,33 +1,47 @@
 package com.lis.player_java.ui
 
 import android.content.Context
-
-import com.lis.player_java.viewModel.PlaybackViewModel
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.os.Bundle
-import androidx.lifecycle.ViewModelProvider
-import android.widget.Toast
-import com.lis.player_java.tool.ImageFun
-import com.lis.player_java.data.room.MusicDB
-import com.lis.player_java.R
-import com.google.android.exoplayer2.Player
-import android.widget.SeekBar.OnSeekBarChangeListener
-import android.widget.SeekBar
 import android.content.SharedPreferences
 import android.icu.text.SimpleDateFormat
+import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.exoplayer2.Player
+import com.lis.player_java.R
+import com.lis.player_java.data.room.MusicDB
 import com.lis.player_java.databinding.FragmentPlayerBinding
 import com.lis.player_java.di.Injection
+import com.lis.player_java.tool.ImageFun
+import com.lis.player_java.viewModel.PlaybackViewModel
 import java.text.MessageFormat
 import java.text.ParseException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
+private var Instant: PlayerFragment? = null
+
+fun PlayerFragment.create(): PlayerFragment {
+    if (Instant == null) {
+        Instant = this
+    }
+    return Instant!!
+}
+
 class PlayerFragment : Fragment() {
     private lateinit var binding: FragmentPlayerBinding
     private lateinit var viewModel: PlaybackViewModel
+
+    val musicId: MutableLiveData<Long> = MutableLiveData()
+    val recyclerView: MutableLiveData<RecyclerView> = MutableLiveData()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,6 +58,15 @@ class PlayerFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+    }
+
+    fun changeMusic() {
+        musicId.observe(viewLifecycleOwner) { id ->
+            viewModel.currentSong.value = id
+        }
+        recyclerView.observe(viewLifecycleOwner) {
+            binding.musicList.adapter = it.adapter
+        }
     }
 
     private fun FragmentPlayerBinding.bindElement() {
@@ -78,22 +101,22 @@ class PlayerFragment : Fragment() {
         viewModel.isPlaying.observe(viewLifecycleOwner) { isPlaying: Boolean ->
             imageFun.setImage(
                 buttonPlayPause,
-                if (isPlaying) R.drawable.ic_baseline_pause_24 else R.drawable.ic_baseline_play_arrow_24
+                if (isPlaying) R.drawable.pause else R.drawable.play
             )
         } //установка иконки play\pause кнопки
 
         viewModel.repeatMode.observe(viewLifecycleOwner) { repeatMode: Int ->
             when (repeatMode) {
                 Player.REPEAT_MODE_OFF -> imageFun.setImage(
-                    buttonLoop, R.drawable.ic_baseline_plus_one_24
+                    buttonLoop, R.drawable.repeate_mode_one
                 )
                 Player.REPEAT_MODE_ONE -> imageFun.setImage(
                     buttonLoop,
-                    R.drawable.ic_baseline_loop_24
+                    R.drawable.repeate_mode_all
                 )
                 Player.REPEAT_MODE_ALL -> imageFun.setImage(
                     buttonLoop,
-                    R.drawable.ic_baseline_low_priority_24
+                    R.drawable.repeat_mode_off
                 )
             }
         } // установка иконки зацикливания
@@ -110,6 +133,16 @@ class PlayerFragment : Fragment() {
         buttonNext.setOnClickListener { nextClickListener() }
         buttonPrevious.setOnClickListener { prevClickListener() }
         buttonLoop.setOnClickListener { loopClickListener() }
+        buttonPlaylist.setOnClickListener { openPlaylist(it) }
+    }
+
+    private fun openPlaylist(view: View) {
+        if (view.visibility == View.VISIBLE) {
+            view.visibility = View.GONE
+        } else if (view.visibility == View.GONE) {
+            view.visibility = View.VISIBLE
+        }
+
     }
 
     private var repeatMode = Player.REPEAT_MODE_OFF
