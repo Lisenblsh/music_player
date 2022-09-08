@@ -37,7 +37,7 @@ android {
 
 dependencies {
 
-    implementation 'androidx.appcompat:appcompat:1.5.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
@@ -45,15 +45,15 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
     //Navigation
-    def nav_version = "2.5.1"
+    def nav_version = "2.5.2"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
-    //Picasso
-    def picasso_version = "2.8"
-    implementation "com.squareup.picasso:picasso:$picasso_version"
-    def picasso_blur_version = "2.4.0"
-    implementation "jp.wasabeef:picasso-transformations:$picasso_blur_version"
+    //Coil
+    def coil_ver = "2.2.1"
+    implementation "io.coil-kt:coil:$coil_ver"
+    def coil_transformer_ver = "1.0.6"
+    implementation "jp.wasabeef.transformers:coil:$coil_transformer_ver"
 
     // Retrofit
     def ret_version = "2.9.0"
@@ -86,7 +86,6 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer:$exoPlayer_version"
 
     //java-diff-utils
-
     def diffUtils_version = "4.11"
     implementation "io.github.java-diff-utils:java-diff-utils:$diffUtils_version"
 

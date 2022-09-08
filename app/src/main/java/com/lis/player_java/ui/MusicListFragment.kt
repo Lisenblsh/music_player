@@ -48,6 +48,7 @@ class MusicListFragment : Fragment() {
     }
 
     private fun FragmentMusicListBinding.bindElement(){
+
         buttonOpenFragment.setOnClickListener {
             val direction = MusicListFragmentDirections.actionMusicListFragmentToPlayerFragment()
             NavHostFragment.findNavController(this@MusicListFragment).navigate(direction)
